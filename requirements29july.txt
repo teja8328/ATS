@@ -129,3 +129,5 @@ yarl==1.9.4
 zipp==3.16.2
 msal
 docx2txt
+python-dotenv
+

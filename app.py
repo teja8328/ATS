@@ -11097,7 +11097,7 @@ def parse_resume():
     'name':['name of the candidate from resume'],
     'email':['email of the candidate from resume'],
     'phonenumber':['phone number of the candidate from resume'],
-    'skills':['only 10 technical skills of the candidate from resume']
+    'skills':['only top 5 technical skills of the candidate from resume']
     }}
     '''
 

@@ -10800,6 +10800,7 @@ def send_career_email(to, subject, message):
 # import fitz  # PyMuPDF
 # from docx import Document
 
+
 # ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 
 # def allowed_file(filename):
@@ -11028,6 +11029,7 @@ import re
 from flask import Flask, request, jsonify
 import fitz  # PyMuPDF
 from docx import Document
+from dotenv import load_dotenv
 
 ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 

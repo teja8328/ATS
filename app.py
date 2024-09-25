@@ -55,9 +55,7 @@ from details import config
 import docx2txt
 
 
-# from sqlalchemy.ext.declarative import declarative_base
 
-# Base = declarative_base()
 
 
 app = Flask(__name__)

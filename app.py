@@ -11474,8 +11474,8 @@ def resumesearching():
     
     # Check if 'folder_name' is provided in the JSON payload
     folder_path = data.get('folder_name')
-    if not folder_path or not os.path.isdir(folder_path):
-        return jsonify({"error": "Invalid folder name provided."}), 400
+    # if not folder_path or not os.path.isdir(folder_path):
+    #     return jsonify({"error": "Invalid folder name provided."}), 400
     all_batches_text = extract_text_from_folder_in_batches(folder_path, batch_size=5)
 
     all_resume_data = []  # List to store resume data from all batches

@@ -10793,6 +10793,235 @@ def send_career_email(to, subject, message):
 
 ####################################################################################################################################
 
+# import base64
+# import io
+# import re
+# from flask import Flask, request, jsonify
+# import fitz  # PyMuPDF
+# from docx import Document
+
+# ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+
+# def allowed_file(filename):
+#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# def extract_text(file):
+#     """
+#     Extract text from PDF or DOCX files.
+    
+#     Parameters:
+#         file (BytesIO): File-like object.
+    
+#     Returns:
+#         str: Extracted text.
+#     """
+#     try:
+#         file.seek(0)
+#         header = file.read(4)
+#         file.seek(0)
+#         if header.startswith(b'%PDF'):
+#             return extract_text_from_pdf(file)
+#         elif header.startswith(b'PK\x03\x04'):
+#             return extract_text_from_docx(file)
+#         else:
+#             return ""  # Unsupported file format
+#     except Exception as e:
+#         print(f"Error determining file type: {e}")
+#         return ""
+
+# def extract_text_from_pdf(file):
+#     """
+#     Extract text from a PDF file.
+    
+#     Parameters:
+#         file (BytesIO): PDF file-like object.
+    
+#     Returns:
+#         str: Extracted text.
+#     """
+#     text = ""
+#     try:
+#         with fitz.open(stream=file, filetype="pdf") as doc:
+#             for page in doc:
+#                 text += page.get_text()
+#     except Exception as e:
+#         print(f"Error extracting text from PDF: {e}")
+#     return text
+
+# def extract_text_from_docx(file):
+#     """
+#     Extract text from a DOCX file.
+   
+#     Parameters:
+#         file (BytesIO): DOCX file-like object.
+   
+#     Returns:
+#         str: Extracted text.
+#     """
+#     text = ""
+#     try:
+#         text = docx2txt.process(file)
+#     except Exception as e:
+#         print(f"Error extracting text from DOCX: {e}")
+#     return text
+
+
+# # def extract_text_from_docx(file):
+# #     """
+# #     Extract text from a DOCX file.
+    
+# #     Parameters:
+# #         file (BytesIO): DOCX file-like object.
+    
+# #     Returns:
+# #         str: Extracted text.
+# #     """
+# #     text = ""
+# #     try:
+# #         doc = Document(file)
+# #         for paragraph in doc.paragraphs:
+# #             text += paragraph.text + '\n'
+# #     except Exception as e:
+# #         print(f"Error extracting text from DOCX: {e}")
+# #     return text
+
+# def extract_skills_from_resume(text, skills_list):
+#     found_skills = [skill for skill in skills_list if skill.lower() in text.lower()]
+#     return found_skills
+
+# def extract_email(text):
+#     email_regex = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+#     email_matches = re.findall(email_regex, text)
+#     return email_matches[-1].rstrip('.,') if email_matches else "No email found"
+    
+# def extract_phone_number(text):
+#     phone_regex = r'\b\d{10}\b'
+#     phone_matches = re.findall(phone_regex, text)
+#     return phone_matches[-1] if phone_matches else "No phone number found"
+
+# # def extract_phone_number(text):
+# #     phone_regex = r'\+?\d[\d -]{8,12}\d'
+# #     phone_matches = re.findall(phone_regex, text)
+# #     return phone_matches[-1] if phone_matches else "No phone number found"
+
+# def extract_name(text):
+#     """
+#     Extract the name from the first few lines of the resume text.
+    
+#     Parameters:
+#         text (str): Resume text.
+    
+#     Returns:
+#         str: Extracted name.
+#     """
+#     lines = text.split('\n')
+#     name_words = []  # List to store the words of the name
+    
+#     # Regular expressions to identify lines that are likely contact details
+#     phone_pattern = re.compile(r'\b(\+?\d[\d\-\.\s]+)?\d{10}\b')
+#     email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+    
+#     for line in lines[:5]:  # Look at the first five lines where the name is likely to appear
+#         # Skip lines that are likely to be contact details
+#         if phone_pattern.search(line) or email_pattern.search(line):
+#             continue
+        
+#         # Remove common salutations and titles
+#         cleaned_line = re.sub(r'\b(Mr\.|Mrs\.|Ms\.|Miss|Dr\.|Sir|Madam)\b', '', line, flags=re.IGNORECASE).strip()
+        
+#         # Extract names with up to three words
+#         words = cleaned_line.split()
+#         name_words.extend(words)  # Add words from the current line to the list
+        
+#         if len(name_words) <= 2:
+#             continue  # Continue accumulating words if we have less than or equal to three words
+#         else:
+#             # Stop accumulating if we exceed three words and return the concatenated name
+#             return ' '.join(word.capitalize() for word in name_words[:3]).rstrip('.,')
+    
+#     # Return the concatenated name if found within the first five lines
+#     if name_words:
+#         return ' '.join(word.capitalize() for word in name_words[:3]).rstrip('.,')
+    
+#     return "No name found"
+
+
+
+# @app.route('/parse_resume', methods=['POST'])
+# def parse_resume():
+#     if 'resume' not in request.json:
+#         return jsonify({'status':'error',"message": "No resume data provided"})
+    
+#     data = request.json
+#     resume_data = data['resume']
+    
+#     try:
+#         decoded_resume = base64.b64decode(resume_data)
+#     except Exception as e:
+#         return jsonify({'status':'error',"message": "Invalid resume data"})
+    
+#     resume_file = io.BytesIO(decoded_resume)
+#     resume_text = extract_text(resume_file)
+    
+#     if not resume_text:
+#         return jsonify({'status':'error',"message": "No text found in the resume data"})
+
+#     it_skills = [ 
+#         'Data Analysis', 'Machine Learning', 'Communication', 'Project Management',
+#         'Deep Learning', 'SQL', 'Tableau', 'C++', 'C', 'Front End Development', 'JAVA', 
+#         'Java Full Stack', 'React JS', 'Node JS','Programming (Python, Java, C++)',
+#         'Data Analysis and Visualization','Artificial Intelligence','Programming',
+#         'Database Management (SQL)','Web Development (HTML, CSS, JavaScript)',
+#         'Machine Learning and Artificial Intelligence','Network Administration',
+#         'Software Development and Testing','Embedded Systems','CAD and 3D Modeling',
+#         'HTML5', 'CSS3', 'Jquery', 'Bootstrap', 'XML', 'JSON', 'ABAP', 'SAPUI5',
+#         'Agile Methodology', 'Frontend Development', 'Jira', 'Odata', 'BTP', 'Fiori Launchpad', 
+#         'Python', 'JavaScript', 'HTML', 'CSS','React', 'Node.js', 'Django', 'Git', 'AWS',
+#         'Linux','DevOps','Linear Regression','Logistic Regression','Decision Tree',
+#         'SVM (Support Vector Machine)','Ensembles','Random Forest','Clustering',
+#         'PCA (Principal Component Analysis)','K-means','Recommendation System',
+#         'Market Basket Analysis','CNN','RNN','LSTM','Natural Language Processing',
+#         'NLTK','LGBM','XGBoost','Transformers','Siamese network','BTYD (Buy Till You Die)',
+#         'ML Ops Tools: Azure Synapse','Azure ML','Azure Databricks','ML flow','Airflow',
+#         'Kubernetes','Dockers','Data Streaming – Kafka','Flask','LT Spice','Wireshark',
+#         'Ansys Lumerical','Zemax OpticStudio','Xilinx Vivado','Google Collab','MATLAB'
+#     ]
+    
+#     non_it_skills = [
+#         'Communication Skills', 'Teamwork', 'Problem Solving', 'Time Management', 'Leadership',
+#         'Creativity', 'Adaptability', 'Critical Thinking', 'Analytical Skills', 'Attention to Detail',
+#         'Customer Service', 'Interpersonal Skills', 'Negotiation Skills', 'Project Management', 
+#         'Presentation Skills', 'Research Skills', 'Organizational Skills', 'Multitasking',
+#         'Decision Making', 'Emotional Intelligence', 'Conflict Resolution', 'Networking', 
+#         'Strategic Planning', 'Public Speaking', 'Writing Skills', 'Sales Skills', 'Marketing', 
+#         'Finance', 'Human Resources', 'Training and Development', 'Event Planning', 'Language Proficiency',
+#         'Problem-Solving', 'Sales', 'Marketing', 'Financial Analysis', 'Customer Relationship Management (CRM)', 
+#         'Quality Management', 'Supply Chain Management', 'Logistics', 'Health and Safety', 'Public Relations', 
+#         'Social Media Management', 'Content Creation', 'Graphic Design', 'Video Editing', 'Photography', 
+#         'Data Entry', 'Administrative Support', 'Customer Support'
+#     ]
+
+#     extracted_it_skills = extract_skills_from_resume(resume_text, it_skills)
+#     extracted_nonit_skills = extract_skills_from_resume(resume_text, non_it_skills)
+#     non_it_skills_final = list(set(extracted_nonit_skills) - set(extracted_it_skills))
+
+#     skills_it = ", ".join(extracted_it_skills) if extracted_it_skills else "No skills found"
+#     skills_non_it = ", ".join(non_it_skills_final) if non_it_skills_final else "No skills found"
+
+#     email_text = extract_email(resume_text)
+#     phone_text = extract_phone_number(resume_text)
+#     name_text = extract_name(resume_text)
+
+#     return jsonify({
+#         'status':'success',
+#         'message':'resume parsed successfully',
+#         "name": name_text,
+#         "mail": email_text,
+#         "phone": phone_text,
+#         "skill1": skills_it,
+#         "skill2": skills_non_it
+#     })
 import base64
 import io
 import re
@@ -10867,85 +11096,96 @@ def extract_text_from_docx(file):
     return text
 
 
-# def extract_text_from_docx(file):
-#     """
-#     Extract text from a DOCX file.
-    
-#     Parameters:
-#         file (BytesIO): DOCX file-like object.
-    
-#     Returns:
-#         str: Extracted text.
-#     """
-#     text = ""
-#     try:
-#         doc = Document(file)
-#         for paragraph in doc.paragraphs:
-#             text += paragraph.text + '\n'
-#     except Exception as e:
-#         print(f"Error extracting text from DOCX: {e}")
-#     return text
 
-def extract_skills_from_resume(text, skills_list):
-    found_skills = [skill for skill in skills_list if skill.lower() in text.lower()]
-    return found_skills
 
-def extract_email(text):
-    email_regex = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-    email_matches = re.findall(email_regex, text)
-    return email_matches[-1].rstrip('.,') if email_matches else "No email found"
+# def extract_skills_from_resume(text, skills_list):
+#     found_skills = [skill for skill in skills_list if skill.lower() in text.lower()]
+#     return found_skills
+
+# def extract_email(text):
+#     email_regex = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+#     email_matches = re.findall(email_regex, text)
+#     return email_matches[-1].rstrip('.,') if email_matches else "No email found"
     
-def extract_phone_number(text):
-    phone_regex = r'\b\d{10}\b'
-    phone_matches = re.findall(phone_regex, text)
-    return phone_matches[-1] if phone_matches else "No phone number found"
-
 # def extract_phone_number(text):
-#     phone_regex = r'\+?\d[\d -]{8,12}\d'
+#     phone_regex = r'\b\d{10}\b'
 #     phone_matches = re.findall(phone_regex, text)
 #     return phone_matches[-1] if phone_matches else "No phone number found"
 
-def extract_name(text):
-    """
-    Extract the name from the first few lines of the resume text.
-    
-    Parameters:
-        text (str): Resume text.
-    
-    Returns:
-        str: Extracted name.
-    """
-    lines = text.split('\n')
-    name_words = []  # List to store the words of the name
-    
-    # Regular expressions to identify lines that are likely contact details
-    phone_pattern = re.compile(r'\b(\+?\d[\d\-\.\s]+)?\d{10}\b')
-    email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
-    
-    for line in lines[:5]:  # Look at the first five lines where the name is likely to appear
-        # Skip lines that are likely to be contact details
-        if phone_pattern.search(line) or email_pattern.search(line):
-            continue
-        
-        # Remove common salutations and titles
-        cleaned_line = re.sub(r'\b(Mr\.|Mrs\.|Ms\.|Miss|Dr\.|Sir|Madam)\b', '', line, flags=re.IGNORECASE).strip()
-        
-        # Extract names with up to three words
-        words = cleaned_line.split()
-        name_words.extend(words)  # Add words from the current line to the list
-        
-        if len(name_words) <= 2:
-            continue  # Continue accumulating words if we have less than or equal to three words
-        else:
-            # Stop accumulating if we exceed three words and return the concatenated name
-            return ' '.join(word.capitalize() for word in name_words[:3]).rstrip('.,')
-    
-    # Return the concatenated name if found within the first five lines
-    if name_words:
-        return ' '.join(word.capitalize() for word in name_words[:3]).rstrip('.,')
-    
-    return "No name found"
+# # def extract_phone_number(text):
+# #     phone_regex = r'\+?\d[\d -]{8,12}\d'
+# #     phone_matches = re.findall(phone_regex, text)
+# #     return phone_matches[-1] if phone_matches else "No phone number found"
 
+# def extract_name(text):
+#     """
+#     Extract the name from the first few lines of the resume text.
+    
+#     Parameters:
+#         text (str): Resume text.
+    
+#     Returns:
+#         str: Extracted name.
+#     """
+#     lines = text.split('\n')
+#     name_words = []  # List to store the words of the name
+    
+#     # Regular expressions to identify lines that are likely contact details
+#     phone_pattern = re.compile(r'\b(\+?\d[\d\-\.\s]+)?\d{10}\b')
+#     email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+    
+#     for line in lines[:5]:  # Look at the first five lines where the name is likely to appear
+#         # Skip lines that are likely to be contact details
+#         if phone_pattern.search(line) or email_pattern.search(line):
+#             continue
+        
+#         # Remove common salutations and titles
+#         cleaned_line = re.sub(r'\b(Mr\.|Mrs\.|Ms\.|Miss|Dr\.|Sir|Madam)\b', '', line, flags=re.IGNORECASE).strip()
+        
+#         # Extract names with up to three words
+#         words = cleaned_line.split()
+#         name_words.extend(words)  # Add words from the current line to the list
+        
+#         if len(name_words) <= 2:
+#             continue  # Continue accumulating words if we have less than or equal to three words
+#         else:
+#             # Stop accumulating if we exceed three words and return the concatenated name
+#             return ' '.join(word.capitalize() for word in name_words[:3]).rstrip('.,')
+    
+#     # Return the concatenated name if found within the first five lines
+#     if name_words:
+#         return ' '.join(word.capitalize() for word in name_words[:3]).rstrip('.,')
+    
+#     return "No name found"
+load_dotenv()
+api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"
+genai.configure(api_key=api_key)
+def format_data_info_text(text):
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if match:
+        response_dict_str = match.group(0).replace("'", "\"")
+        try:
+            response_dict = json.loads(response_dict_str)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing response dictionary: {e}")
+            return []
+
+        name = response_dict.get('name', [''])[0]
+        email = response_dict.get('email', [''])[0]
+        phonenumber = response_dict.get('phonenumber', [''])[0]
+        skills = response_dict.get('skills', [])
+
+        result = [{
+            "name": name,
+            "email": email,
+            "phonenumber": phonenumber,
+            "skills": skills
+        }]
+
+        return result
+    else:
+        print("No matching pattern found in the response text.")
+        return []
 
 
 @app.route('/parse_resume', methods=['POST'])
@@ -10966,61 +11206,53 @@ def parse_resume():
     
     if not resume_text:
         return jsonify({'status':'error',"message": "No text found in the resume data"})
-
-    it_skills = [ 
-        'Data Analysis', 'Machine Learning', 'Communication', 'Project Management',
-        'Deep Learning', 'SQL', 'Tableau', 'C++', 'C', 'Front End Development', 'JAVA', 
-        'Java Full Stack', 'React JS', 'Node JS','Programming (Python, Java, C++)',
-        'Data Analysis and Visualization','Artificial Intelligence','Programming',
-        'Database Management (SQL)','Web Development (HTML, CSS, JavaScript)',
-        'Machine Learning and Artificial Intelligence','Network Administration',
-        'Software Development and Testing','Embedded Systems','CAD and 3D Modeling',
-        'HTML5', 'CSS3', 'Jquery', 'Bootstrap', 'XML', 'JSON', 'ABAP', 'SAPUI5',
-        'Agile Methodology', 'Frontend Development', 'Jira', 'Odata', 'BTP', 'Fiori Launchpad', 
-        'Python', 'JavaScript', 'HTML', 'CSS','React', 'Node.js', 'Django', 'Git', 'AWS',
-        'Linux','DevOps','Linear Regression','Logistic Regression','Decision Tree',
-        'SVM (Support Vector Machine)','Ensembles','Random Forest','Clustering',
-        'PCA (Principal Component Analysis)','K-means','Recommendation System',
-        'Market Basket Analysis','CNN','RNN','LSTM','Natural Language Processing',
-        'NLTK','LGBM','XGBoost','Transformers','Siamese network','BTYD (Buy Till You Die)',
-        'ML Ops Tools: Azure Synapse','Azure ML','Azure Databricks','ML flow','Airflow',
-        'Kubernetes','Dockers','Data Streaming – Kafka','Flask','LT Spice','Wireshark',
-        'Ansys Lumerical','Zemax OpticStudio','Xilinx Vivado','Google Collab','MATLAB'
-    ]
     
-    non_it_skills = [
-        'Communication Skills', 'Teamwork', 'Problem Solving', 'Time Management', 'Leadership',
-        'Creativity', 'Adaptability', 'Critical Thinking', 'Analytical Skills', 'Attention to Detail',
-        'Customer Service', 'Interpersonal Skills', 'Negotiation Skills', 'Project Management', 
-        'Presentation Skills', 'Research Skills', 'Organizational Skills', 'Multitasking',
-        'Decision Making', 'Emotional Intelligence', 'Conflict Resolution', 'Networking', 
-        'Strategic Planning', 'Public Speaking', 'Writing Skills', 'Sales Skills', 'Marketing', 
-        'Finance', 'Human Resources', 'Training and Development', 'Event Planning', 'Language Proficiency',
-        'Problem-Solving', 'Sales', 'Marketing', 'Financial Analysis', 'Customer Relationship Management (CRM)', 
-        'Quality Management', 'Supply Chain Management', 'Logistics', 'Health and Safety', 'Public Relations', 
-        'Social Media Management', 'Content Creation', 'Graphic Design', 'Video Editing', 'Photography', 
-        'Data Entry', 'Administrative Support', 'Customer Support'
-    ]
+    # Generate the AI prompt for resume analysis
+    resume_score_prompt = f'''
+    I am giving the extracted text of a resume: {resume_text} 
+    Analyse the resume and extract data with no theoretical explanations and no analysis.
+    Present the output in the following format:
+    data={{
+    'name':['name of the candidate from resume'],
+    'email':['email of the candidate from resume'],
+    'phonenumber':['phone number of the candidate from resume'],
+    'skills':['only 10 technical skills of the candidate from resume']
+    }}
+    '''
 
-    extracted_it_skills = extract_skills_from_resume(resume_text, it_skills)
-    extracted_nonit_skills = extract_skills_from_resume(resume_text, non_it_skills)
-    non_it_skills_final = list(set(extracted_nonit_skills) - set(extracted_it_skills))
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    response = model.generate_content(resume_score_prompt)
+    ai_response = response.text
 
-    skills_it = ", ".join(extracted_it_skills) if extracted_it_skills else "No skills found"
-    skills_non_it = ", ".join(non_it_skills_final) if non_it_skills_final else "No skills found"
+    # Clean and format the AI's response
+    cleaned_text = clean_response(ai_response)
+    data = format_data_info_text(cleaned_text)
+    
+    # Extract information from the first dictionary in the list
+    if data:
+        info = data[0]
+        name = info.get('name', '')
+        print(name)
+        email = info.get('email', '')
+        print(email)
+        phonenumber = info.get('phonenumber', '')
+        print(phonenumber)
+        skills = info.get('skills', [])
+        skills_formated= ', '.join(skills)
+        print(skills_formated)       
+    else:
+        print("No data available.")
 
-    email_text = extract_email(resume_text)
-    phone_text = extract_phone_number(resume_text)
-    name_text = extract_name(resume_text)
 
+    # Return the formatted data as JSON response
     return jsonify({
         'status':'success',
         'message':'resume parsed successfully',
-        "name": name_text,
-        "mail": email_text,
-        "phone": phone_text,
-        "skill1": skills_it,
-        "skill2": skills_non_it
+        "name": name,
+        "mail": email,
+        "phone": phonenumber,
+        "skill1": skills_formated
+        
     })
 
 if __name__ == '__main__':

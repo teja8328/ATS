@@ -11427,9 +11427,9 @@ def store_resume_data(resume_dict):
     # Database connection parameters
     conn_params = {
         'dbname': 'atsdb',
-        'user': 'postgres',
-        'password': 'teja',
-        'host': 'localhost',
+        'user': 'atsdb_user',
+        'password': 'KC8T2jEzXm2al7TgtansB67NbnXSmhky',
+        'host': 'dpg-crgj5r88fa8c73aporhg-a.singapore-postgres.render.com',
         'port': '5432'
     }
     

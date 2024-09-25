@@ -401,6 +401,15 @@ class ScheduledMeeting(db.Model):
         self.time_zone = time_zone
         self.join_url = join_url
 
+class Candidate_resume(db.Model):
+    __tablename__ = 'candidate_resume'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    phone = db.Column(db.String(255), nullable=False)
+    skills = db.Column(db.String(255), nullable=True)
+
 ###################################################################################################
 from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor
@@ -11422,33 +11431,7 @@ def clean_and_parse_resume_data(resume_data):
 
     return resume_dict
 
-def store_resume_data(resume_dict):
-    """Store resume data in the PostgreSQL database."""
-    # Database connection parameters
-    conn_params = {
-        'dbname': 'atsdb',
-        'user': 'atsdb_user',
-        'password': 'KC8T2jEzXm2al7TgtansB67NbnXSmhky',
-        'host': 'dpg-crgj5r88fa8c73aporhg-a.singapore-postgres.render.com',
-        'port': '5432'
-    }
-    
-    # Connect to the PostgreSQL database
-    conn = psycopg2.connect(**conn_params)
-    cur = conn.cursor()
-    
-    # Create table if not exists (without unique constraints)
-    cur.execute(''' 
-    CREATE TABLE IF NOT EXISTS candidates (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255),
-        email VARCHAR(255),
-        phone VARCHAR(255),
-        skills TEXT[]
-    )
-    ''')
-    
-    # Insert data into the table (without ON CONFLICT clause)
+def store_resume_data(resume_dict): 
     for key, value in resume_dict.items():
         if len(value) >= 4:  # Ensure we have at least 4 skills
             name, email, phone, skills = value[0], value[1], value[2], value[3:]
@@ -11466,14 +11449,22 @@ def store_resume_data(resume_dict):
             # Print the cleaned skills on the console for verification
             print(f"Skills to be stored: {formatted_skills}")
 
-            # Insert the data into the database
-            cur.execute('''
-            INSERT INTO candidates (name, email, phone, skills) VALUES (%s, %s, %s, %s)
-            ''', (name, email, phone, formatted_skills))
-    
-    conn.commit()
-    cur.close()
-    conn.close()
+            new_candidate = Candidate(
+                name=name,
+                email=email,
+                phone=phone,
+                skills=cleaned_skills  # Ensure this is a list for the skills
+            )
+
+            # Add the new candidate to the session
+            db.session.add(new_candidate)
+
+            # Commit the session to save the changes to the database
+            try:
+                db.session.commit()
+            except IntegrityError as e:
+                db.session.rollback()  # Rollback in case of error
+                print(f"Error occurred while storing resume data: {e}")
 
 
 @app.route('/resumesearching', methods=['POST'])

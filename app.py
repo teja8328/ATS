@@ -11588,6 +11588,9 @@ def extract_resumes():
                 resume_file = io.BytesIO(decoded_resume)
                 resume_text = extract_text(resume_file)
 
+                if not isinstance(resume_text, str):
+                    raise ValueError("Extracted text is not a valid string.")
+
                 # Add prefix, content, suffix, and dotted line
                 formatted_text = f"Start of Resume {batch_index}\n{resume_text}\nEnd of Resume {batch_index}\n{'-' * 200}\n"
                 all_resumes_text += formatted_text
@@ -11608,6 +11611,7 @@ def extract_resumes():
         all_resumes_text = ""
 
     return jsonify({'status': 'success', 'extracted_results': extracted_results})
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0",port=5000)

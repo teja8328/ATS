@@ -11440,16 +11440,18 @@ def generate_resume_data(all_resumes_text):
     genai.configure(api_key=api_key)
 
     resume_score_prompt = f'''
-    I am giving the extracted text {all_resumes_text} of many resumes. Each resume starts with "Start of Resume" and its number, and ends with "End of Resume" and its number, followed by a dotted line.
-    Extract data from all resumes in the following format with no theoretical explanations and no analysis:
-    Present the output in the format below, providing data for each resume only once:
+    i am giving the extracted text {all_resumes_text} of many resumes each resume starts with start of resume and its number and ends with end of resume and its number and dotted line
+    extract data from all resumes in below format with no theoretical explanations and no analysis
+    if there is no data for any resume do not include those resume data in the output
+    present the output in below format give the data of each resume only once:
     {{
-    "resume 1 data":[candidate name from resume 1,email from resume 1,phone number from resume 1,[only top 4 technical skills from resume 1]],
-    "resume 2 data":[candidate name from resume 2,email from resume 2,phone number from resume 2,[only top 4 technical skills from resume 2]],
-    "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 4 technical skills from resume 3]],
+    "resume 1 data":[candidate name from resume 1,email from resume 1,phone number from resume 1,[only top 5 technical skills from resume 1]],
+    "resume 2 data":[candidate name from resume 2,email from resume 2,phone number from resume 2,[only top 5 technical skills from resume 2]],
+    "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 5 technical skills from resume 3]],
     .
     .
     .
+    .   
     }}'''
 
     model = genai.GenerativeModel('gemini-1.5-flash')

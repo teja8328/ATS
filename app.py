@@ -401,14 +401,14 @@ class ScheduledMeeting(db.Model):
         self.time_zone = time_zone
         self.join_url = join_url
 
-class Candidate_resume(db.Model):
+class candidate_resume(db.Model):
     __tablename__ = 'candidate_resume'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
-    name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
-    phone = db.Column(db.String(255), nullable=False)
-    skills = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.String(255), nullable=True)  # Allows NULL
+    email = db.Column(db.String(255), nullable=True)  # Allows NULL
+    phone = db.Column(db.String(255), nullable=True)  # Allows NULL
+    skills = db.Column(db.ARRAY(db.Text), nullable=True)  # Allows NULL
 
 ###################################################################################################
 from functools import lru_cache

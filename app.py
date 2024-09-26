@@ -11587,6 +11587,7 @@ def extract_resumes():
                 decoded_resume = base64.b64decode(resume_data)
                 resume_file = io.BytesIO(decoded_resume)
                 resume_text = extract_text(resume_file)
+                print(resume_text)
 
                 if not isinstance(resume_text, str):
                     raise ValueError("Extracted text is not a valid string.")

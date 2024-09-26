@@ -11266,142 +11266,190 @@ def parse_resume():
         
     })
 
-def extract_text_from_file(file_path):
-    """Extract text from a file depending on whether it's PDF, DOCX, or DOC."""
-    ext = os.path.splitext(file_path)[1].lower()
+# def extract_text_from_file(file_path):
+#     """Extract text from a file depending on whether it's PDF, DOCX, or DOC."""
+#     ext = os.path.splitext(file_path)[1].lower()
     
-    if ext == ".pdf":
-        return extract_text_from_pdf(file_path)
-    elif ext == ".docx":
-        return extract_text_from_docx(file_path)
-    elif ext == ".doc":
-        return extract_text_from_doc(file_path)
-    else:
-        raise ValueError("Unsupported file type: {}".format(ext))
+#     if ext == ".pdf":
+#         return extract_text_from_pdf(file_path)
+#     elif ext == ".docx":
+#         return extract_text_from_docx(file_path)
+#     elif ext == ".doc":
+#         return extract_text_from_doc(file_path)
+#     else:
+#         raise ValueError("Unsupported file type: {}".format(ext))
 
-def extract_text_from_pdf(pdf_path):
-    """Extract text from a PDF file using fitz (PyMuPDF)."""
-    text = ""
-    doc = fitz.open(pdf_path)  # Open the PDF file
+# def extract_text_from_pdf(pdf_path):
+#     """Extract text from a PDF file using fitz (PyMuPDF)."""
+#     text = ""
+#     doc = fitz.open(pdf_path)  # Open the PDF file
 
-    for page_num in range(doc.page_count):  # Iterate through pages
-        page = doc.load_page(page_num)  # Load each page
-        text += page.get_text("text")  # Extract text
+#     for page_num in range(doc.page_count):  # Iterate through pages
+#         page = doc.load_page(page_num)  # Load each page
+#         text += page.get_text("text")  # Extract text
 
-    doc.close()
-    return text
+#     doc.close()
+#     return text
 
-def extract_text_from_docx(docx_path):
-    """Extract text from a DOCX file using docx2txt."""    
-    return docx2txt.process(docx_path)  # Extract text from DOCX file
+# def extract_text_from_docx(docx_path):
+#     """Extract text from a DOCX file using docx2txt."""    
+#     return docx2txt.process(docx_path)  # Extract text from DOCX file
 
-def extract_text_from_doc(doc_path):
-    def doc_to_base64_string(doc_path):
-    # Read the .doc file in binary mode
-        with open(doc_path, 'rb') as file:
-            binary_data = file.read()
+# def extract_text_from_doc(doc_path):
+#     def doc_to_base64_string(doc_path):
+#     # Read the .doc file in binary mode
+#         with open(doc_path, 'rb') as file:
+#             binary_data = file.read()
     
-        # Encode the binary data to Base64
-        base64_data = base64.b64encode(binary_data)
+#         # Encode the binary data to Base64
+#         base64_data = base64.b64encode(binary_data)
         
-        # Convert Base64 bytes to string
-        base64_string = base64_data.decode('utf-8')
+#         # Convert Base64 bytes to string
+#         base64_string = base64_data.decode('utf-8')
         
-        return base64_string
+#         return base64_string
 
 
-    def extract_text_from_pdf_doc(file):
-        text = ""
-        try:
-            with fitz.open(stream=file, filetype="pdf") as doc:
-                for page in doc:
-                    text += page.get_text()
-        except Exception as e:
-            print(f"Error extracting text from PDF: {e}")
-        return text
+#     def extract_text_from_pdf_doc(file):
+#         text = ""
+#         try:
+#             with fitz.open(stream=file, filetype="pdf") as doc:
+#                 for page in doc:
+#                     text += page.get_text()
+#         except Exception as e:
+#             print(f"Error extracting text from PDF: {e}")
+#         return text
 
-    def extract_text_from_docx_doc(file):
-        text = ""
-        try:
-            text = docx2txt.process(file)
-        except Exception as e:
-            print(f"Error extracting text from DOCX: {e}")
-        return text
-
-
-    def extract_text(file):
-        try:
-            file.seek(0)
-            header = file.read(4)
-            file.seek(0)
-            if header.startswith(b'%PDF'):
-                return extract_text_from_pdf_doc(file)
-            elif header.startswith(b'PK\x03\x04'):
-                return extract_text_from_docx_doc(file)
-            else:
-                return ""  # Unsupported file format
-        except Exception as e:
-            print(f"Error determining file type: {e}")
-            return ""
-
-    base64_string = doc_to_base64_string(doc_path)
-    decoded_resume = base64.b64decode(base64_string)
-    resume_file = io.BytesIO(decoded_resume)
-    resume_text = extract_text(resume_file)
-    return resume_text
+#     def extract_text_from_docx_doc(file):
+#         text = ""
+#         try:
+#             text = docx2txt.process(file)
+#         except Exception as e:
+#             print(f"Error extracting text from DOCX: {e}")
+#         return text
 
 
-def extract_text_from_folder_in_batches(folder_path, batch_size=5):
-    """Extract text from all PDF, DOC, and DOCX files in a folder in batches of a given size."""
-    all_files = []  # List to store all file paths
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
-        if os.path.isfile(file_path):
-            all_files.append(file_path)
+#     def extract_text(file):
+#         try:
+#             file.seek(0)
+#             header = file.read(4)
+#             file.seek(0)
+#             if header.startswith(b'%PDF'):
+#                 return extract_text_from_pdf_doc(file)
+#             elif header.startswith(b'PK\x03\x04'):
+#                 return extract_text_from_docx_doc(file)
+#             else:
+#                 return ""  # Unsupported file format
+#         except Exception as e:
+#             print(f"Error determining file type: {e}")
+#             return ""
 
-    # Split files into batches
-    batches = [all_files[i:i + batch_size] for i in range(0, len(all_files), batch_size)]
+#     base64_string = doc_to_base64_string(doc_path)
+#     decoded_resume = base64.b64decode(base64_string)
+#     resume_file = io.BytesIO(decoded_resume)
+#     resume_text = extract_text(resume_file)
+#     return resume_text
+
+
+# def extract_text_from_folder_in_batches(folder_path, batch_size=5):
+#     """Extract text from all PDF, DOC, and DOCX files in a folder in batches of a given size."""
+#     all_files = []  # List to store all file paths
+#     for filename in os.listdir(folder_path):
+#         file_path = os.path.join(folder_path, filename)
+#         if os.path.isfile(file_path):
+#             all_files.append(file_path)
+
+#     # Split files into batches
+#     batches = [all_files[i:i + batch_size] for i in range(0, len(all_files), batch_size)]
     
-    all_batches_text = []  # List to store text from each batch
-    for batch_num, batch in enumerate(batches, start=1):
-        batch_text = ""
-        resume_count = 1  # Reset resume_count to 1 at the start of each batch
-        for file_path in batch:
-            try:
-                text = extract_text_from_file(file_path)
-                batch_text += f"Start of Resume {resume_count} in Batch {batch_num}\n{text}\nEnd of Resume {resume_count}\n{'-'*200}\n"
-                resume_count += 1  # Increment the resume count for each resume
-            except ValueError as e:
-                print(e)  # Print unsupported file type message
-            except Exception as e:
-                print(f"An error occurred while processing file {file_path}: {e}")
+#     all_batches_text = []  # List to store text from each batch
+#     for batch_num, batch in enumerate(batches, start=1):
+#         batch_text = ""
+#         resume_count = 1  # Reset resume_count to 1 at the start of each batch
+#         for file_path in batch:
+#             try:
+#                 text = extract_text_from_file(file_path)
+#                 batch_text += f"Start of Resume {resume_count} in Batch {batch_num}\n{text}\nEnd of Resume {resume_count}\n{'-'*200}\n"
+#                 resume_count += 1  # Increment the resume count for each resume
+#             except ValueError as e:
+#                 print(e)  # Print unsupported file type message
+#             except Exception as e:
+#                 print(f"An error occurred while processing file {file_path}: {e}")
 
-        all_batches_text.append(batch_text)
+#         all_batches_text.append(batch_text)
 
-    return all_batches_text  # List of extracted text from each batch
+#     return all_batches_text  # List of extracted text from each batch
 
+
+
+
+# def generate_resume_data(all_resumes_text):
+#     """Use Google Generative AI to extract structured data from resumes."""
+#     load_dotenv()
+#     api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU" # Load the API key from the environment
+#     genai.configure(api_key=api_key)
+
+#     resume_score_prompt = f'''
+#     i am giving the extracted text {all_resumes_text} of many resumes each resume starts with start of resume and its number and ends with end of resume and its number and dotted line
+#     extract data from all resumes in below format with no theoretical explanations and no analysis
+#     if there is no data for any resume do not include those resume data in the output
+#     present the output in below format give the data of each resume only once:
+#     {{
+#     "resume 1 data":[candidate name from resume 1,email from resume 1,phone number from resume 1,[only top 4 technical skills from resume 1]],
+#     "resume 2 data":[candidate name from resume 2,email from resume 2,phone number from resume 2,[only top 4 technical skills from resume 2]],
+#         "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 4 technical skills from resume 3]],
+#     .
+#     .
+#     .
+#     .   
+#     }}'''
+
+#     model = genai.GenerativeModel('gemini-1.5-flash')
+#     response = model.generate_content(resume_score_prompt)
+#     return response.text
+
+# def clean_and_parse_resume_data(resume_data):
+#     """Clean and parse the resume data."""
+#     cleaned_text = resume_data.replace('```', '').replace('json', '')
+#     cleaned_str = cleaned_text.strip()[1:-1]  # Remove outer braces
+#     resume_entries = cleaned_str.split('],')
+    
+#     resume_dict = {}
+#     for entry in resume_entries:
+#         try:
+#             key, value = entry.split(':', 1)
+#             key = key.strip().strip('"')
+#             if not value.strip().endswith(']'):
+#                 value = value.strip() + ']'
+            
+#             value = value.strip()
+#             if value.startswith('[') and value.endswith(']'):
+#                 value_list = [v.strip().strip('"') for v in value[1:-1].split(',')]
+#                 resume_dict[key] = value_list
+#         except ValueError as e:
+#             print(f"Error parsing entry: {entry}, error: {e}")
+
+#     return resume_dict
 
 
 
 def generate_resume_data(all_resumes_text):
     """Use Google Generative AI to extract structured data from resumes."""
     load_dotenv()
-    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU" # Load the API key from the environment
+    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"  # Load the API key from the environment
     genai.configure(api_key=api_key)
 
     resume_score_prompt = f'''
-    i am giving the extracted text {all_resumes_text} of many resumes each resume starts with start of resume and its number and ends with end of resume and its number and dotted line
-    extract data from all resumes in below format with no theoretical explanations and no analysis
-    if there is no data for any resume do not include those resume data in the output
-    present the output in below format give the data of each resume only once:
+    I am giving the extracted text {all_resumes_text} of many resumes. Each resume starts with "Start of Resume" and its number, and ends with "End of Resume" and its number, followed by a dotted line.
+    Extract data from all resumes in the following format with no theoretical explanations and no analysis:
+    Present the output in the format below, providing data for each resume only once:
     {{
     "resume 1 data":[candidate name from resume 1,email from resume 1,phone number from resume 1,[only top 4 technical skills from resume 1]],
     "resume 2 data":[candidate name from resume 2,email from resume 2,phone number from resume 2,[only top 4 technical skills from resume 2]],
-        "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 4 technical skills from resume 3]],
+    "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 4 technical skills from resume 3]],
     .
     .
     .
-    .   
     }}'''
 
     model = genai.GenerativeModel('gemini-1.5-flash')
@@ -11413,7 +11461,7 @@ def clean_and_parse_resume_data(resume_data):
     cleaned_text = resume_data.replace('```', '').replace('json', '')
     cleaned_str = cleaned_text.strip()[1:-1]  # Remove outer braces
     resume_entries = cleaned_str.split('],')
-    
+
     resume_dict = {}
     for entry in resume_entries:
         try:
@@ -11467,56 +11515,99 @@ def store_resume_data(resume_dict):
                 print(f"Error occurred while storing resume data: {e}")
 
 
-@app.route('/resumesearching', methods=['POST'])
-def resumesearching():
-    #folder_path = "resumes_testing"  # Update this to your folder path
-    data = request.get_json()
+# @app.route('/resumesearching', methods=['POST'])
+# def resumesearching():
+#     #folder_path = "resumes_testing"  # Update this to your folder path
+#     data = request.get_json()
     
-    # Check if 'folder_name' is provided in the JSON payload
-    folder_path = data.get('folder_name')
-    # if not folder_path or not os.path.isdir(folder_path):
-    #     return jsonify({"error": "Invalid folder name provided."}), 400
-    all_batches_text = extract_text_from_folder_in_batches(folder_path, batch_size=5)
+#     # Check if 'folder_name' is provided in the JSON payload
+#     folder_path = data.get('folder_name')
+#     # if not folder_path or not os.path.isdir(folder_path):
+#     #     return jsonify({"error": "Invalid folder name provided."}), 400
+#     all_batches_text = extract_text_from_folder_in_batches(folder_path, batch_size=5)
 
-    all_resume_data = []  # List to store resume data from all batches
+#     all_resume_data = []  # List to store resume data from all batches
 
-    for batch_text in all_batches_text:
-        # Generate resume data using Google Generative AI for each batch
-        resume_data = generate_resume_data(batch_text)
+#     for batch_text in all_batches_text:
+#         # Generate resume data using Google Generative AI for each batch
+#         resume_data = generate_resume_data(batch_text)
         
-        # Clean and parse the resume data
-        resume_dict = clean_and_parse_resume_data(resume_data)
+#         # Clean and parse the resume data
+#         resume_dict = clean_and_parse_resume_data(resume_data)
         
-        # Store the resume data in the database
-        store_resume_data(resume_dict)
+#         # Store the resume data in the database
+#         store_resume_data(resume_dict)
 
-        # Collect all resume data to display on the web page
-        #all_resume_data.append(resume_data)
+#         # Collect all resume data to display on the web page
+#         #all_resume_data.append(resume_data)
 
-    # Combine all batches of resume data into a single HTML-friendly format
-    #all_resume_data_html = "<br><br>".join(all_resume_data).replace("\n", "<br>")
+#     # Combine all batches of resume data into a single HTML-friendly format
+#     #all_resume_data_html = "<br><br>".join(all_resume_data).replace("\n", "<br>")
 
-    # Render the result with the processed resume data
-    # html_template = f"""
-    # <html>
-    # <head>
-    #     <title>Resume Data</title>
-    # </head>
-    # <body>
-    #     <h1>Resume Data Processed Successfully</h1>
-    #     <p>All batches have been processed and stored in the database.</p>
-    #     <h2>Generated Resume Data:</h2>
-    #     <p>{all_resume_data_html}</p> <!-- Print the resume data here -->
-    # </body>
-    # </html>
-    # """
+#     # Render the result with the processed resume data
+#     # html_template = f"""
+#     # <html>
+#     # <head>
+#     #     <title>Resume Data</title>
+#     # </head>
+#     # <body>
+#     #     <h1>Resume Data Processed Successfully</h1>
+#     #     <p>All batches have been processed and stored in the database.</p>
+#     #     <h2>Generated Resume Data:</h2>
+#     #     <p>{all_resume_data_html}</p> <!-- Print the resume data here -->
+#     # </body>
+#     # </html>
+#     # """
     
-    response_data = {
-        "message": "Resume Data Processed Successfully",
-        "details": "All batches have been processed and stored in the database."
-    }
+#     response_data = {
+#         "message": "Resume Data Processed Successfully",
+#         "details": "All batches have been processed and stored in the database."
+#     }
     
-    return jsonify(response_data), 200  # Return JSON response with HTTP status 200 
+#     return jsonify(response_data), 200  # Return JSON response with HTTP status 200 
+
+@app.route('/extract_resumes', methods=['POST'])
+def extract_resumes():
+    data = request.json
+    if 'resumes' not in data:
+        return jsonify({'status': 'error', 'message': 'Missing resumes'}), 400
+    
+    resumes = data['resumes']
+    extracted_results = []
+
+    all_resumes_text = ""
+
+    # Process resumes in batches of 5
+    for batch_start in range(0, len(resumes), 5):
+        batch_resumes = resumes[batch_start:batch_start + 5]
+        batch_index = 1  # Reset batch index
+
+        for resume_data in batch_resumes:
+            try:
+                decoded_resume = base64.b64decode(resume_data)
+                resume_file = io.BytesIO(decoded_resume)
+                resume_text = extract_text(resume_file)
+
+                # Add prefix, content, suffix, and dotted line
+                formatted_text = f"Start of Resume {batch_index}\n{resume_text}\nEnd of Resume {batch_index}\n{'-' * 200}\n"
+                all_resumes_text += formatted_text
+                extracted_results.append({'index': batch_start + batch_index - 1, 'extracted_text': formatted_text})
+                batch_index += 1
+            except Exception as e:
+                extracted_results.append({'index': batch_start + batch_index - 1, 'error': str(e)})
+
+        # Generate structured data from the extracted text for this batch
+        if all_resumes_text.strip():
+            resume_data = generate_resume_data(all_resumes_text)
+            resume_dict = clean_and_parse_resume_data(resume_data)
+
+            # Store the structured data in the database
+            store_resume_data(resume_dict)
+
+        # Clear the all_resumes_text for the next batch
+        all_resumes_text = ""
+
+    return jsonify({'status': 'success', 'extracted_results': extracted_results})
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0",port=5000)

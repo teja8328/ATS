@@ -11497,7 +11497,7 @@ def store_resume_data(resume_dict):
             # Print the cleaned skills on the console for verification
             print(f"Skills to be stored: {formatted_skills}")
 
-            new_candidate = Candidate(
+            new_candidate = candidate_resume(
                 name=name,
                 email=email,
                 phone=phone,

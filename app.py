@@ -11562,11 +11562,12 @@ def generate_resume_data(all_resumes_text):
     i am giving the extracted text {all_resumes_text} of many resumes each resume starts with start of resume and its number and ends with end of resume and its number and dotted line
     extract data from all resumes in below format with no theoretical explanations and no analysis
     if there is no data for any resume do not include those resume data in the output
+    if only one resume is given, give the data of only that resume,dont give resume 2 data,resume 3 data
     present the output in below format give the data of each resume only once:
     {{
-    "resume 1 data":[candidate name from resume 1,email from resume 1,phone number from resume 1,[only top 5 technical skills from resume 1]],
-    "resume 2 data":[candidate name from resume 2,email from resume 2,phone number from resume 2,[only top 5 technical skills from resume 2]],
-    "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 5 technical skills from resume 3]],
+    "resume 1 data":[candidate name from resume 1,email from resume 1,phone number from resume 1,[only top 4 technical skills from resume 1]],
+    "resume 2 data":[candidate name from resume 2,email from resume 2,phone number from resume 2,[only top 4 technical skills from resume 2]],
+    "resume 3 data":[candidate name from resume 3,email from resume 3,phone number from resume 3,[only top 4 technical skills from resume 3]],
     .
     .
     .
@@ -11638,17 +11639,25 @@ def clean_and_parse_resume_data(resume_data):
 
 
 def store_resume_data(resume_dict, resumes):
+    duplicate_emails = []  # List to hold duplicate emails
     for key, value in resume_dict.items():
         dicnum = int(key.split()[1])
+        print(dicnum)
         resume64 = resumes[dicnum - 1]  # Get the corresponding base64 resume
 
         if len(value) >= 4:  # Ensure we have at least 4 skills
             name, email, phone, skills = value[0], value[1], value[2], value[3:]
 
+            # Check if the email already exists in the database
+            existing_candidate = candidate_resume.query.filter_by(email=email).first()
+            if existing_candidate:
+                print(f"Candidate with email {email} already exists. Skipping storage.")
+                duplicate_emails.append(email)  # Add to duplicates list
+                continue  # Skip to the next entry
+
             # Clean and format the skills
             cleaned_skills = []
             for skill in skills:
-                # Remove square brackets, curly braces, and quotes from skill entries
                 skill_cleaned = skill.replace('{', '').replace('}', '').replace('[', '').replace(']', '').replace('"', '').strip()
                 cleaned_skills.append(skill_cleaned)
 
@@ -11676,8 +11685,68 @@ def store_resume_data(resume_dict, resumes):
                 db.session.rollback()  # Rollback in case of error
                 print(f"Error occurred while storing resume data: {e}")
 
+    return duplicate_emails  # Return the list of duplicate emails
 
 
+@app.route('/extract_resumes', methods=['POST'])
+def extract_resumes():
+    data = request.json
+    if 'resumes' not in data:
+        return jsonify({'status': 'error', 'message': 'Missing resumes'}), 400
+    
+    resumes = data['resumes']
+    extracted_results = []
+    all_resumes_text = ""
+    all_resume_dicts = []  # To collect all resume_dicts for the response
+
+    # Initialize a cumulative index
+    cumulative_index = 0
+
+    # Process resumes in batches of 5
+    for batch_start in range(0, len(resumes), 5):
+        batch_resumes = resumes[batch_start:batch_start + 5]
+        
+        for resume_data in batch_resumes:
+            cumulative_index += 1  # Increment the cumulative index for each resume
+            try:
+                decoded_resume = base64.b64decode(resume_data)
+                resume_file = io.BytesIO(decoded_resume)
+                resume_text = extract_text(resume_file)
+                #print(resume_text)
+
+                if not isinstance(resume_text, str):
+                    raise ValueError("Extracted text is not a valid string.")
+
+                # Add prefix, content, suffix, and dotted line
+                formatted_text = f"Start of Resume {cumulative_index}\n{resume_text}\nEnd of Resume {cumulative_index}\n{'-' * 200}\n"
+                all_resumes_text += formatted_text
+                extracted_results.append({'index': cumulative_index - 1, 'extracted_text': formatted_text})
+
+            except Exception as e:
+                extracted_results.append({'index': cumulative_index - 1, 'error': str(e)})
+
+        # Generate structured data from the extracted text for this batch
+        if all_resumes_text.strip():
+            resume_data = generate_resume_data(all_resumes_text)
+            print(resume_data)
+            resume_dict = clean_and_parse_resume_data(resume_data)
+            
+
+            # Store the structured data in the database and collect duplicates
+            duplicate_emails = store_resume_data(resume_dict, resumes)
+
+            # Collect resume_dicts for the response
+            all_resume_dicts.append(resume_dict)
+
+        # Clear the all_resumes_text for the next batch
+        all_resumes_text = ""
+
+    return jsonify({
+        'status': 'success',
+ #       'extracted_results': extracted_results,
+        'resume_data': all_resume_dicts,  # Include resume_dicts in the response
+        'duplicate_emails': duplicate_emails  # Send duplicate emails to frontend
+    })
 # @app.route('/resumesearching', methods=['POST'])
 # def resumesearching():
 #     #folder_path = "resumes_testing"  # Update this to your folder path
@@ -11777,62 +11846,62 @@ def store_resume_data(resume_dict, resumes):
 #     return jsonify({'status': 'success', 'extracted_results': extracted_results})
 
 
-@app.route('/extract_resumes', methods=['POST'])
-def extract_resumes():
-    data = request.json
-    if 'resumes' not in data:
-        return jsonify({'status': 'error', 'message': 'Missing resumes'}), 400
+# @app.route('/extract_resumes', methods=['POST'])
+# def extract_resumes():
+#     data = request.json
+#     if 'resumes' not in data:
+#         return jsonify({'status': 'error', 'message': 'Missing resumes'}), 400
     
-    resumes = data['resumes']
-    extracted_results = []
-    all_resumes_text = ""
-    all_resume_dicts = []  # To collect all resume_dicts for the response
+#     resumes = data['resumes']
+#     extracted_results = []
+#     all_resumes_text = ""
+#     all_resume_dicts = []  # To collect all resume_dicts for the response
 
-    # Initialize a cumulative index
-    cumulative_index = 0
+#     # Initialize a cumulative index
+#     cumulative_index = 0
 
-    # Process resumes in batches of 5
-    for batch_start in range(0, len(resumes), 5):
-        batch_resumes = resumes[batch_start:batch_start + 5]
+#     # Process resumes in batches of 5
+#     for batch_start in range(0, len(resumes), 5):
+#         batch_resumes = resumes[batch_start:batch_start + 5]
         
-        for resume_data in batch_resumes:
-            cumulative_index += 1  # Increment the cumulative index for each resume
-            try:
-                decoded_resume = base64.b64decode(resume_data)
-                resume_file = io.BytesIO(decoded_resume)
-                resume_text = extract_text(resume_file)
-                print(resume_text)
+#         for resume_data in batch_resumes:
+#             cumulative_index += 1  # Increment the cumulative index for each resume
+#             try:
+#                 decoded_resume = base64.b64decode(resume_data)
+#                 resume_file = io.BytesIO(decoded_resume)
+#                 resume_text = extract_text(resume_file)
+#                 print(resume_text)
 
-                if not isinstance(resume_text, str):
-                    raise ValueError("Extracted text is not a valid string.")
+#                 if not isinstance(resume_text, str):
+#                     raise ValueError("Extracted text is not a valid string.")
 
-                # Add prefix, content, suffix, and dotted line
-                formatted_text = f"Start of Resume {cumulative_index}\n{resume_text}\nEnd of Resume {cumulative_index}\n{'-' * 200}\n"
-                all_resumes_text += formatted_text
-                extracted_results.append({'index': cumulative_index - 1, 'extracted_text': formatted_text})
+#                 # Add prefix, content, suffix, and dotted line
+#                 formatted_text = f"Start of Resume {cumulative_index}\n{resume_text}\nEnd of Resume {cumulative_index}\n{'-' * 200}\n"
+#                 all_resumes_text += formatted_text
+#                 extracted_results.append({'index': cumulative_index - 1, 'extracted_text': formatted_text})
 
-            except Exception as e:
-                extracted_results.append({'index': cumulative_index - 1, 'error': str(e)})
+#             except Exception as e:
+#                 extracted_results.append({'index': cumulative_index - 1, 'error': str(e)})
 
-        # Generate structured data from the extracted text for this batch
-        if all_resumes_text.strip():
-            resume_data = generate_resume_data(all_resumes_text)
-            resume_dict = clean_and_parse_resume_data(resume_data)
+#         # Generate structured data from the extracted text for this batch
+#         if all_resumes_text.strip():
+#             resume_data = generate_resume_data(all_resumes_text)
+#             resume_dict = clean_and_parse_resume_data(resume_data)
 
-            # Store the structured data in the database
-            store_resume_data(resume_dict, resumes)
+#             # Store the structured data in the database
+#             store_resume_data(resume_dict, resumes)
 
-            # Collect resume_dicts for the response
-            all_resume_dicts.append(resume_dict)
+#             # Collect resume_dicts for the response
+#             all_resume_dicts.append(resume_dict)
 
-        # Clear the all_resumes_text for the next batch
-        all_resumes_text = ""
+#         # Clear the all_resumes_text for the next batch
+#         all_resumes_text = ""
 
-    return jsonify({
-        'status': 'success',
-        'extracted_results': extracted_results,
-        'resume_data': all_resume_dicts  # Include resume_dicts in the response
-    })
+#     return jsonify({
+#         'status': 'success',
+#         'extracted_results': extracted_results,
+#         'resume_data': all_resume_dicts  # Include resume_dicts in the response
+#     })
 
     
     
@@ -11871,7 +11940,6 @@ def get_all_candidates():
 
 
 
-
 @app.route('/view_resume_research/<int:candidate_id>', methods=['GET'])
 def view_resume_research(candidate_id):
     # Retrieve the resume data from the candidate_resume table using SQLAlchemy
@@ -11901,6 +11969,59 @@ def view_resume_research(candidate_id):
         )
     except Exception as e:
         return f'Error processing resume: {str(e)}', 500
+
+
+@app.route('/get_candidates_dashboard', methods=['GET'])
+def get_candidates_dashboard():
+    # You can add filtering logic here based on query parameters if needed
+    candidates = Candidate.query.all()
+
+    # Create a custom response without the resume field
+    response = [
+        {
+            'id': candidate.id,
+            'job_id': candidate.job_id,
+            'name': candidate.name,
+            'mobile': candidate.mobile,
+            'email': candidate.email,
+            'client': candidate.client,
+            'current_company': candidate.current_company,
+            'position': candidate.position,
+            'profile': candidate.profile,
+            'current_job_location': candidate.current_job_location,
+            'preferred_job_location': candidate.preferred_job_location,
+            'skills': candidate.skills,
+            'qualifications': candidate.qualifications,
+            'experience': candidate.experience,
+            'relevant_experience': candidate.relevant_experience,
+            'current_ctc': candidate.current_ctc,
+            'expected_ctc': candidate.expected_ctc,
+            'notice_period': candidate.notice_period,
+            'last_working_date': candidate.last_working_date.strftime('%Y-%m-%d') if candidate.last_working_date else None,
+            'buyout': candidate.buyout,
+            'holding_offer': candidate.holding_offer,
+            'total': candidate.total,
+            'package_in_lpa': candidate.package_in_lpa,
+            'recruiter': candidate.recruiter,
+            'management': candidate.management,
+            'status': candidate.status,
+            'reason_for_job_change': candidate.reason_for_job_change,
+            'remarks': candidate.remarks,
+            'date_created': candidate.date_created.strftime('%Y-%m-%d') if candidate.date_created else None,
+            'time_created': candidate.time_created.strftime('%H:%M:%S') if candidate.time_created else None,
+            'comments': candidate.comments,
+            'linkedin_url': candidate.linkedin_url,
+            'user_id': candidate.user_id,
+            'period_of_notice': candidate.period_of_notice,
+            'reference': candidate.reference,
+            'reference_name': candidate.reference_name,
+            'reference_position': candidate.reference_position,
+            'reference_information': candidate.reference_information,
+        }
+        for candidate in candidates
+    ]
+
+    return jsonify(response)
 
 
 

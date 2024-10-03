@@ -131,6 +131,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'username': self.username,
+            'password': self.password,  # Caution!
             'name': self.name,
             'email': self.email,
             'user_type': self.user_type,
@@ -139,8 +140,25 @@ class User(db.Model):
             'is_verified': self.is_verified,
             'created_by': self.created_by,
             'otp': self.otp,
-            'registration_completed': self.registration_completed
+            'registration_completed': self.registration_completed,
+            'filename': self.filename,
+            'image_deleted': self.image_deleted
         }
+    # def serialize(self):
+    #     return {
+    #         'id': self.id,
+    #         'username': self.username,
+    #         'name': self.name,
+    #         'email': self.email,
+    #         'user_type': self.user_type,
+    #         'client': self.client,
+    #         'is_active': self.is_active,
+    #         'is_verified': self.is_verified,
+    #         'created_by': self.created_by,
+    #         'otp': self.otp,
+    #         'registration_completed': self.registration_completed
+    #     }
+    
         
 class Candidate(db.Model):
     __tablename__ = 'candidates'
@@ -309,27 +327,55 @@ class JobPost(db.Model):
     jd_pdf_present = db.Column(db.Boolean, default=False)
     # jd_pdf_present = db.Column(db.Boolean, default=True)
     no_of_positions = db.Column(db.String(100))
-    def __init__(self, client, experience_min, experience_max, budget_min, budget_max, location, shift_timings, notice_period, role, detailed_jd, mode, recruiter, management, job_status, job_type, skills, jd_pdf, jd_pdf_present,contract_in_months, no_of_positions):
-        self.client = client
-        self.experience_min = experience_min
-        self.experience_max = experience_max
-        self.budget_min = budget_min
-        self.budget_max = budget_max
-        self.location = location
-        self.shift_timings = shift_timings
-        self.notice_period = notice_period
-        self.role = role
-        self.detailed_jd = detailed_jd
-        self.mode = mode
-        self.recruiter = recruiter
-        self.management = management
-        self.job_status = job_status
-        self.job_type = job_type
-        self.skills = skills
-        self.jd_pdf = jd_pdf
-        self.contract_in_months = contract_in_months
-        self.jd_pdf_present = jd_pdf_present
-        self.no_of_positions = no_of_positions
+    def serialize(self):
+        return {
+            'id': self.id,
+            'client': self.client,
+            'experience_min': self.experience_min,
+            'experience_max': self.experience_max,
+            'budget_min': self.budget_min,
+            'budget_max': self.budget_max,
+            'location': self.location,
+            'shift_timings': self.shift_timings,
+            'notice_period': self.notice_period,
+            'role': self.role,
+            'detailed_jd': self.detailed_jd,
+            'jd_pdf_present': self.jd_pdf_present,
+            'mode': self.mode,
+            'recruiter': self.recruiter,
+            'management': self.management,
+            'date_created': self.date_created.isoformat() if self.date_created else None,
+            'time_created': str(self.time_created) if self.time_created else None,
+            'job_status': self.job_status,
+            'job_type': self.job_type,
+            'contract_in_months': self.contract_in_months,
+            'skills': self.skills,
+            'notification': self.notification,
+            'data_updated_date': self.data_updated_date.isoformat() if self.data_updated_date else None,
+            'data_updated_time': str(self.data_updated_time) if self.data_updated_time else None,
+            'no_of_positions': self.no_of_positions
+        }
+    # def __init__(self, client, experience_min, experience_max, budget_min, budget_max, location, shift_timings, notice_period, role, detailed_jd, mode, recruiter, management, job_status, job_type, skills, jd_pdf, jd_pdf_present,contract_in_months, no_of_positions):
+    #     self.client = client
+    #     self.experience_min = experience_min
+    #     self.experience_max = experience_max
+    #     self.budget_min = budget_min
+    #     self.budget_max = budget_max
+    #     self.location = location
+    #     self.shift_timings = shift_timings
+    #     self.notice_period = notice_period
+    #     self.role = role
+    #     self.detailed_jd = detailed_jd
+    #     self.mode = mode
+    #     self.recruiter = recruiter
+    #     self.management = management
+    #     self.job_status = job_status
+    #     self.job_type = job_type
+    #     self.skills = skills
+    #     self.jd_pdf = jd_pdf
+    #     self.contract_in_months = contract_in_months
+    #     self.jd_pdf_present = jd_pdf_present
+    #     self.no_of_positions = no_of_positions
 
 class Deletedcandidate(db.Model):
     _tablename_ = 'deletedcandidate'
@@ -12023,7 +12069,21 @@ def get_candidates_dashboard():
 
     return jsonify(response)
 
+@app.route('/get_all_users', methods=['GET'])
+def get_all_users():
+    try:
+        users = User.query.all()  # Fetch all user records
+        return jsonify([user.serialize() for user in users])  # Serialize and return as JSON
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Return error if something goes wrong
 
+@app.route('/get_all_jobposts', methods=['GET'])
+def get_all_jobposts():
+    try:
+        job_posts = JobPost.query.all()  # Fetch all job post records
+        return jsonify([job_post.serialize() for job_post in job_posts])  # Serialize and return as JSON
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Return error if something goes wrong
 
 
 

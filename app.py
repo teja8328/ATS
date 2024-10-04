@@ -11758,7 +11758,6 @@ def extract_resumes():
                 decoded_resume = base64.b64decode(resume_data)
                 resume_file = io.BytesIO(decoded_resume)
                 resume_text = extract_text(resume_file)
-                #print(resume_text)
 
                 if not isinstance(resume_text, str):
                     raise ValueError("Extracted text is not a valid string.")
@@ -11777,7 +11776,6 @@ def extract_resumes():
             print(resume_data)
             resume_dict = clean_and_parse_resume_data(resume_data)
             
-
             # Store the structured data in the database and collect duplicates
             duplicate_emails = store_resume_data(resume_dict, resumes)
 
@@ -11787,12 +11785,15 @@ def extract_resumes():
         # Clear the all_resumes_text for the next batch
         all_resumes_text = ""
 
+    # Remove duplicate emails and convert to a list
+    unique_duplicate_emails = list(set(duplicate_emails))
+
     return jsonify({
         'status': 'success',
- #       'extracted_results': extracted_results,
         'resume_data': all_resume_dicts,  # Include resume_dicts in the response
-        'duplicate_emails': duplicate_emails  # Send duplicate emails to frontend
+        'duplicate_emails': unique_duplicate_emails  # Send unique duplicate emails to frontend
     })
+
 # @app.route('/resumesearching', methods=['POST'])
 # def resumesearching():
 #     #folder_path = "resumes_testing"  # Update this to your folder path

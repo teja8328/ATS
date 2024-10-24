@@ -77,8 +77,8 @@ app.config['MAIL_PASSWORD'] = config.microsoft_mail_password
 
 mail = Mail(app)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
-app.config['SQLALCHEMY_DATABASE_URI']= "postgresql://newatsdb_user:9kKKrXd7ka304O4YfmvZ1pIkC75Nhml9@dpg-cs3mdkrtq21c73dmgajg-a.singapore-postgres.render.com/newatsdb"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+#app.config['SQLALCHEMY_DATABASE_URI']= "postgresql://newatsdb_user:9kKKrXd7ka304O4YfmvZ1pIkC75Nhml9@dpg-cs3mdkrtq21c73dmgajg-a.singapore-postgres.render.com/newatsdb"
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 Session = sessionmaker(bind=engine)
@@ -12088,5 +12088,5 @@ def get_all_jobposts():
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True, host="0.0.0.0",port=5000)
+if __name__ == '__main__':
+    app.run(debug=True, host="0.0.0.0",port=5000)

@@ -12086,6 +12086,127 @@ def get_all_jobposts():
     except Exception as e:
         return jsonify({"error": str(e)}), 500  # Return error if something goes wrong
 
+@app.route('/recruiter_target', methods=['POST'])
+def recruiter_target():
+    data = request.json
+    print("Received data:", data)  # Debugging line
+
+    # Validate required fields
+    required_fields = ['recruiter', 'target_given', 'days']
+    if not all(field in data for field in required_fields):
+        return jsonify({'message': 'Missing required fields', 'data': data}), 400
+
+    # Convert the 'days' field from string to corresponding number
+    days_mapping = {
+        'daily': 1,
+        'weekly': 7,
+        'monthly': 30,
+        'quarterly': 120
+    }
+    days_value = days_mapping.get(data['days'].lower())
+    # if days_value is None:
+    #     return jsonify({'message': 'Invalid value for days', 'data': data}), 400
+
+    # Iterate over each recruiter and create a new target entry
+    for recruiter_name in data['recruiter']:
+        print(f"Processing recruiter: {recruiter_name}")  # Debugging line
+
+        # Get recruiter email from the users table using the 'name' field
+        recruiter = User.query.filter_by(name=recruiter_name).first()
+        if recruiter is None:
+            print(f"Recruiter not found: {recruiter_name}")  # Debugging line
+            continue  # Skip if the recruiter is not found
+
+        # Create a new target entry
+        new_target = Target(
+            recruiter=recruiter_name,
+            target_given=data['target_given'],
+            days=days_value,
+            target_completed=data.get('target_completed'),  # Optional
+            closure_rate=data.get('closure_rate'),  # Optional
+            target_assigned_date=datetime.now().date()  # Ensure only the date is stored
+        )
+
+        # Save to the database
+        db.session.add(new_target)
+        print(f"Added target for recruiter: {recruiter_name}")  # Debugging line
+
+        # Call the function to send a notification
+        
+        #----------------------------------------------------
+        notification_error = recruiter_target_send_notification(
+            recruiter_email=recruiter.email,
+            new_recruiter_name=recruiter_name,
+            days=days_value,
+            target_given=data['target_given']
+        )
+        if notification_error:
+            print("Notification error:", notification_error)  # Debugging line
+#-------------------------------------------------------------------------------------
+        # Commit after each iteration
+        try:
+            db.session.commit()
+            print(f"Committed target for recruiter: {recruiter_name}")  # Debugging line
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            print("Database commit error:", str(e))  # Debugging line
+            return jsonify({'message': 'Failed to save target for recruiter: ' + recruiter_name, 'error': str(e)}), 500
+
+    return jsonify({'message': 'Targets created successfully', 'data': data}), 201
+
+
+
+@app.route('/recruiter_onboarded_candidates', methods=['GET'])
+def get_onboarded_candidates():
+    # Get all targets from the Target table
+    targets = Target.query.all()
+    
+    result = []
+
+    # Iterate through each target and apply the conditions
+    for target in targets:
+        # Calculate the target_assigned_date + days
+        assigned_date_plus_days = target.target_assigned_date + timedelta(days=target.days)
+
+        # Query to count candidates matching the criteria
+        count = Candidate.query.filter(
+            Candidate.recruiter == target.recruiter,  # Ensure candidate is for the recruiter in target
+            Candidate.status == "ON - BOARDED",
+            Candidate.data_updated_date > target.target_assigned_date,
+            Candidate.data_updated_date < assigned_date_plus_days
+        ).count()
+
+        # Calculate target_completed and closure_rate
+        target_completed = count
+        closure_rate = (target_completed / target.target_given * 100) if target.target_given > 0 else 0
+
+        # Update target_completed and closure_rate in the Target table
+        target.target_completed = target_completed
+        target.closure_rate = closure_rate
+
+        # Save changes to the database
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            print("Error saving target data:", str(e))  # Debugging line
+            return jsonify({'message': 'Failed to save target data', 'error': str(e)}), 500
+
+        # Add the target data to the result list
+        result.append({
+            "id": target.id,
+            "recruiter": target.recruiter,
+            "target_given": target.target_given,
+            "days": target.days,
+            "target_completed": target.target_completed,
+            "closure_rate": target.closure_rate,
+            "target_assigned_date": target.target_assigned_date.isoformat(),  # Format date as ISO string
+        })
+
+    # Sort the result list by closure_rate in decreasing order
+    sorted_result = sorted(result, key=lambda x: x['closure_rate'], reverse=True)
+
+    return jsonify(sorted_result), 200
 
 
 if __name__ == '__main__':

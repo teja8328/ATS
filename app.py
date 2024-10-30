@@ -4328,7 +4328,77 @@ def generate_otp():
         return jsonify({'status': 'error', 'message': 'Invalid request method.'})
 
 
+def recruiter_target_send_notification(recruiter_email, new_recruiter_name, days, target_given):
+    html_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                color: #333;
+                line-height: 1.6;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }}
+            .container {{
+                padding: 20px;
+                margin: 20px auto;
+                max-width: 600px;
+                background-color: #ffffff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }}
+            .header {{
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px;
+                text-align: center;
+                font-size: 20px;
+                border-radius: 8px 8px 0 0;
+            }}
+            p {{
+                margin: 10px 0;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 12px;
+                color: #777;
+                text-align: center;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                New Target Assigned
+            </div>
+            <p>Dear {new_recruiter_name},</p>
+            <p>A new target has been assigned to you.</p>
+            <p>Details:</p>
+            <p>In <b>{days}</b> days, you have to ensure that from your submissions, <b>{target_given}</b> candidates are onboarded.</p>
+            <p>Regards,</p>
+            <p><b>Makonis Talent Track Pro Team</b></p>
+        </div>
+    </body>
+    </html>
+    """
 
+    msg = Message(
+        'New Target Assigned',
+        sender=config.sender_email,
+        recipients=[recruiter_email]
+    )
+    msg.html = html_body
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print("mail error", str(e))
+        return f'Failed to send mail: {str(e)}'
+    return None
 
 
 # @app.route('/generate_otp', methods=['POST'])

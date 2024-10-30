@@ -11420,6 +11420,32 @@ def extract_text_from_docx(file):
 load_dotenv()
 api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"
 genai.configure(api_key=api_key)
+# def format_data_info_text(text):
+#     match = re.search(r"\{.*\}", text, re.DOTALL)
+#     if match:
+#         response_dict_str = match.group(0).replace("'", "\"")
+#         try:
+#             response_dict = json.loads(response_dict_str)
+#         except json.JSONDecodeError as e:
+#             print(f"Error parsing response dictionary: {e}")
+#             return []
+
+#         name = response_dict.get('name', [''])[0]
+#         email = response_dict.get('email', [''])[0]
+#         phonenumber = response_dict.get('phonenumber', [''])[0]
+#         skills = response_dict.get('skills', [])
+
+#         result = [{
+#             "name": name,
+#             "email": email,
+#             "phonenumber": phonenumber,
+#             "skills": skills
+#         }]
+
+#         return result
+#     else:
+#         print("No matching pattern found in the response text.")
+#         return []
 def format_data_info_text(text):
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if match:
@@ -11434,12 +11460,19 @@ def format_data_info_text(text):
         email = response_dict.get('email', [''])[0]
         phonenumber = response_dict.get('phonenumber', [''])[0]
         skills = response_dict.get('skills', [])
-
+        current_company = response_dict.get('current_company',[''])[0]
+        current_job_location = response_dict.get('current_job_location',[''])[0]
+        qualifications = response_dict.get('qualifications',[''])[0]
+        position = response_dict.get('position',[''])[0]
         result = [{
             "name": name,
             "email": email,
             "phonenumber": phonenumber,
-            "skills": skills
+            "skills": skills,
+            "current_company":current_company,
+            "current_job_location":current_job_location,
+            "qualifications":qualifications,
+            "position":position
         }]
 
         return result
@@ -11447,6 +11480,73 @@ def format_data_info_text(text):
         print("No matching pattern found in the response text.")
         return []
 
+
+# @app.route('/parse_resume', methods=['POST'])
+# def parse_resume():
+#     if 'resume' not in request.json:
+#         return jsonify({'status':'error',"message": "No resume data provided"})
+    
+#     data = request.json
+#     resume_data = data['resume']
+    
+#     try:
+#         decoded_resume = base64.b64decode(resume_data)
+#     except Exception as e:
+#         return jsonify({'status':'error',"message": "Invalid resume data"})
+    
+#     resume_file = io.BytesIO(decoded_resume)
+#     resume_text = extract_text(resume_file)
+    
+#     if not resume_text:
+#         return jsonify({'status':'error',"message": "No text found in the resume data"})
+    
+#     # Generate the AI prompt for resume analysis
+#     resume_score_prompt = f'''
+#     I am giving the extracted text of a resume: {resume_text} 
+#     Analyse the resume and extract data with no theoretical explanations and no analysis.
+#     Present the output in the following format:
+#     data={{
+#     'name':['name of the candidate from resume'],
+#     'email':['email of the candidate from resume'],
+#     'phonenumber':['phone number of the candidate from resume'],
+#     'skills':['only 10 technical skills of the candidate from resume']
+#     }}
+#     '''
+
+#     model = genai.GenerativeModel('gemini-1.5-flash')
+#     response = model.generate_content(resume_score_prompt)
+#     ai_response = response.text
+
+#     # Clean and format the AI's response
+#     cleaned_text = clean_response(ai_response)
+#     data = format_data_info_text(cleaned_text)
+    
+#     # Extract information from the first dictionary in the list
+#     if data:
+#         info = data[0]
+#         name = info.get('name', '')
+#         print(name)
+#         email = info.get('email', '')
+#         print(email)
+#         phonenumber = info.get('phonenumber', '')
+#         print(phonenumber)
+#         skills = info.get('skills', [])
+#         skills_formated= ', '.join(skills)
+#         print(skills_formated)       
+#     else:
+#         print("No data available.")
+
+
+#     # Return the formatted data as JSON response
+#     return jsonify({
+#         'status':'success',
+#         'message':'resume parsed successfully',
+#         "name": name,
+#         "mail": email,
+#         "phone": phonenumber,
+#         "skill1": skills_formated
+        
+#     })
 
 @app.route('/parse_resume', methods=['POST'])
 def parse_resume():
@@ -11476,7 +11576,11 @@ def parse_resume():
     'name':['name of the candidate from resume'],
     'email':['email of the candidate from resume'],
     'phonenumber':['phone number of the candidate from resume'],
-    'skills':['only 10 technical skills of the candidate from resume']
+    'skills':['only 10 technical skills of the candidate from resume'],
+    'current_company':['current company of the candidate'],
+    'current_job_location':['current job location of the candidate']
+    'qualifications':['highest education qualification not specification of the candidate']
+    'position':['current job position of the candidate']
     }}
     '''
 
@@ -11486,6 +11590,7 @@ def parse_resume():
 
     # Clean and format the AI's response
     cleaned_text = clean_response(ai_response)
+    print(cleaned_text)
     data = format_data_info_text(cleaned_text)
     
     # Extract information from the first dictionary in the list
@@ -11498,6 +11603,10 @@ def parse_resume():
         phonenumber = info.get('phonenumber', '')
         print(phonenumber)
         skills = info.get('skills', [])
+        current_company = info.get('current_company', '')
+        current_job_location = info.get('current_job_location', '')
+        qualifications = info.get('qualifications', '')
+        position = info.get('position','')
         skills_formated= ', '.join(skills)
         print(skills_formated)       
     else:
@@ -11511,9 +11620,16 @@ def parse_resume():
         "name": name,
         "mail": email,
         "phone": phonenumber,
-        "skill1": skills_formated
+        "skill1": skills_formated,
+        "current_company":current_company,
+        "current_job_location":current_job_location,
+        "qualifications":qualifications,
+        "position":position
+        
+        
         
     })
+
 
 # def extract_text_from_file(file_path):
 #     """Extract text from a file depending on whether it's PDF, DOCX, or DOC."""

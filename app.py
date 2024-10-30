@@ -12102,14 +12102,13 @@ def view_resume_research(candidate_id):
         return f'Error processing resume: {str(e)}', 500
 
 
-@app.route('/get_candidates_dashboard', methods=['GET'])
-def get_candidates_dashboard():
-    # You can add filtering logic here based on query parameters if needed
+@app.route('/Get_All_Candidates_dashboard', methods=['GET'])
+def get_all_candidates_dashboard():
     candidates = Candidate.query.all()
-
-    # Create a custom response without the resume field
-    response = [
-        {
+    candidate_list = []
+ 
+    for candidate in candidates:
+        candidate_data = {
             'id': candidate.id,
             'job_id': candidate.job_id,
             'name': candidate.name,
@@ -12138,8 +12137,10 @@ def get_candidates_dashboard():
             'status': candidate.status,
             'reason_for_job_change': candidate.reason_for_job_change,
             'remarks': candidate.remarks,
-            'date_created': candidate.date_created.strftime('%Y-%m-%d') if candidate.date_created else None,
-            'time_created': candidate.time_created.strftime('%H:%M:%S') if candidate.time_created else None,
+            'date_created': candidate.date_created.strftime('%Y-%m-%d'),
+            'time_created': candidate.time_created.strftime('%H:%M:%S'),
+            'data_updated_date': candidate.data_updated_date.strftime('%Y-%m-%d') if candidate.data_updated_date else None,
+            'data_updated_time': candidate.data_updated_time.strftime('%H:%M:%S') if candidate.data_updated_time else None,
             'comments': candidate.comments,
             'linkedin_url': candidate.linkedin_url,
             'user_id': candidate.user_id,
@@ -12148,27 +12149,79 @@ def get_candidates_dashboard():
             'reference_name': candidate.reference_name,
             'reference_position': candidate.reference_position,
             'reference_information': candidate.reference_information,
+ 
         }
-        for candidate in candidates
-    ]
+        candidate_list.append(candidate_data)
+    return jsonify(candidate_list)
 
-    return jsonify(response)
 
-@app.route('/get_all_users', methods=['GET'])
+@app.route('/Get_All_Jobs', methods=['GET'])
+def Get_All_JOb():
+    # Query all job posts from the database
+    job_posts = JobPost.query.all()
+    job_post_list = []
+ 
+    for job_post in job_posts:
+        job_post_data = {
+            'id': job_post.id,
+            'client': job_post.client,
+            'experience_min': job_post.experience_min,
+            'experience_max': job_post.experience_max,
+            'budget_min': job_post.budget_min,
+            'budget_max': job_post.budget_max,
+            'location': job_post.location,
+            'shift_timings': job_post.shift_timings,
+            'notice_period': job_post.notice_period,
+            'role': job_post.role,
+            'detailed_jd': job_post.detailed_jd,
+            'mode': job_post.mode,
+            'recruiter': job_post.recruiter,
+            'management': job_post.management,
+            'date_created': job_post.date_created.strftime('%Y-%m-%d') if job_post.date_created else None,
+            'time_created': job_post.time_created.strftime('%H:%M:%S') if job_post.time_created else None,
+            'job_status': job_post.job_status,
+            'job_type': job_post.job_type,
+            'contract_in_months': job_post.contract_in_months,
+            'skills': job_post.skills,
+            'notification': job_post.notification,
+            'data_updated_date': job_post.data_updated_date.strftime('%Y-%m-%d') if job_post.data_updated_date else None,
+            'data_updated_time': job_post.data_updated_time.strftime('%H:%M:%S') if job_post.data_updated_time else None,
+            'jd_pdf_present': job_post.jd_pdf_present,
+            'no_of_positions': job_post.no_of_positions,
+        }
+        job_post_list.append(job_post_data)
+ 
+    return jsonify(job_post_list)
+
+
+@app.route('/Get_All_Users', methods=['GET'])
 def get_all_users():
-    try:
-        users = User.query.all()  # Fetch all user records
-        return jsonify([user.serialize() for user in users])  # Serialize and return as JSON
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500  # Return error if something goes wrong
+    # Query all users from the database
+    users = User.query.all()
+    user_list = []
+ 
+    for user in users:
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'name': user.name,
+            # 'email': user.email,
+            'user_type': user.user_type,
+            # 'client': user.client,
+            # 'is_active': user.is_active,
+            # 'is_verified': user.is_verified,
+            # 'created_by': user.created_by,
+            # 'otp': user.otp,
+            # 'registration_completed': user.registration_completed,
+            # 'image_file': user.image_file,  # Uncomment if you want to exclude this field
+        }
+        user_list.append(user_data)
+ 
+    return jsonify(user_list)
 
-@app.route('/get_all_jobposts', methods=['GET'])
-def get_all_jobposts():
-    try:
-        job_posts = JobPost.query.all()  # Fetch all job post records
-        return jsonify([job_post.serialize() for job_post in job_posts])  # Serialize and return as JSON
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500  # Return error if something goes wrong
+
+
+
 
 @app.route('/recruiter_target', methods=['POST'])
 def recruiter_target():

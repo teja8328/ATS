@@ -1,10 +1,10 @@
 
 # Project dependencies
-Flask>=2.0
+Flask>=2.0,<3.0   # Ensure Flask is within a compatible range
 requests>=2.25.1
-setuptools>=65.5.0
+setuptools==65.6.3 # Downgrade to a version that is compatible
 wheel>=0.36.2
-# Add other dependencies here
+
 
 
 aiohttp==3.9.5

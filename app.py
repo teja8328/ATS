@@ -458,6 +458,20 @@ class candidate_resume(db.Model):
     resume_base64 = db.Column(db.Text, nullable=False)  # New column to store base64 resumes
 
 
+
+
+class Target(db.Model):
+    __tablename__ = 'target'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
+    recruiter = db.Column(db.String(100), nullable=False)  # Assuming recruiter is a string, adjust type as necessary
+    target_given = db.Column(db.Integer, nullable=False)
+    days = db.Column(db.Integer, nullable=False)
+    target_completed = db.Column(db.Integer, nullable=True)
+    closure_rate = db.Column(db.Float, nullable=True)
+    target_assigned_date = db.Column(db.Date, nullable=True)
+
+
 ###################################################################################################
 from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor

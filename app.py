@@ -5150,7 +5150,7 @@ def management_login():
         
         # Compare the hashed password with the hashed password stored in the database
         #changes here
-        if password == user.password:
+        if hashed_password == user.password:
         #changes here
             if user.is_active:  # Check if the user is active
                 if user.is_verified:

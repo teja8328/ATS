@@ -5146,11 +5146,11 @@ def management_login():
     
     if user:
         # Hash the provided password using the same hash function and parameters used to hash the passwords in the database
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        #hashed_password = hashlib.sha256(password.encode()).hexdigest()
         
         # Compare the hashed password with the hashed password stored in the database
         #changes here
-        if hashed_password == user.password:
+        if password == user.password:
         #changes here
             if user.is_active:  # Check if the user is active
                 if user.is_verified:

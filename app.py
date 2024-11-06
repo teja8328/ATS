@@ -6088,6 +6088,125 @@ def get_common_job_data(job):
         'no_of_positions': job.no_of_positions
     }
 
+
+
+#new changes are done here
+# @app.route('/dashboard', methods=['POST'])
+# def dashboard():
+#     data = request.json
+#     user_id = data.get('user_id')
+
+#     if user_id is None:
+#         return jsonify({"message": "User ID missing"}), 400
+
+#     user = User.query.filter_by(id=user_id).first()
+#     if user is None:
+#         return jsonify({"message": "User not found"}), 404
+
+#     user_type = user.user_type
+#     user_name = user.username
+#     name = user.name
+
+#     # Conditional ordering
+#     conditional_order_date = case(
+#         (Candidate.data_updated_date != None, Candidate.data_updated_date),
+#         else_=Candidate.date_created
+#     )
+#     conditional_order_time = case(
+#         (Candidate.data_updated_time != None, Candidate.data_updated_time),
+#         else_=Candidate.time_created
+#     )
+
+#     response_data = {}
+    
+#     if user_type == 'recruiter':
+#         recruiter = User.query.filter_by(id=user_id, user_type='recruiter').first()
+#         if recruiter is None:
+#             return jsonify({"message": "Recruiter not found"}), 404
+
+#         recruiters = recruiter.username.split(',')
+
+#         candidates = Candidate.query.filter(and_(Candidate.recruiter == recruiter.name, Candidate.reference.is_(None)))\
+#             .order_by(
+#                 desc(conditional_order_date),
+#                 desc(conditional_order_time),
+#                 desc(Candidate.id)
+#             ).all()
+
+#         jobs_query = JobPost.query.filter(
+#             or_(*[JobPost.recruiter.like(f"%{recruiter}%") for recruiter in recruiters])
+#         )
+#         jobs = jobs_query.all()
+
+#         response_data = {
+#             'user': {
+#                 'id': recruiter.id,
+#                 'name': recruiter.name,
+#                 'user_type': recruiter.user_type,
+#                 'email': recruiter.email
+#             },
+#             'user_type': user_type,
+#             'user_name': user_name,
+#             'name': name,
+#             'candidates': [get_common_candidate_data(candidate) for candidate in candidates],
+#             'jobs': [get_common_job_data(job) for job in jobs],
+#             'edit_candidate_message': data.get('edit_candidate_message'),
+#             'page_no': data.get('page_no'),
+#         }
+
+#     elif user_type == 'management':
+#         users = User.query.all()
+
+#         candidates = Candidate.query.filter(Candidate.reference.is_(None))\
+#             .order_by(
+#                 desc(conditional_order_date),
+#                 desc(conditional_order_time),
+#                 desc(Candidate.id)
+#             ).all()
+
+#         jobs = JobPost.query.all()
+        
+#         response_data = {
+#             'users': [{'id': user.id, 'name': user.name, 'user_type': user.user_type, 'email': user.email} for user in users],
+#             'user_type': user_type,
+#             'user_name': user_name,
+#             'candidates': [get_common_candidate_data(candidate) for candidate in candidates],
+#             'jobs': [get_common_job_data(job) for job in jobs],
+#             'signup_message': data.get('signup_message'),
+#             'job_message': data.get('job_message'),
+#             'page_no': data.get('page_no'),
+#             'edit_candidate_message': data.get('edit_candidate_message'),
+#         }
+
+#     else:
+#         candidates = Candidate.query.filter_by(recruiter=user.name)\
+#             .order_by(
+#                 desc(conditional_order_date),
+#                 desc(conditional_order_time),
+#                 desc(Candidate.id)
+#             ).all()
+
+#         response_data = {
+#             'user': {
+#                 'id': user.id,
+#                 'name': user.name,
+#                 'user_type': user.user_type,
+#                 'email': user.email
+#             },
+#             'user_type': user_type,
+#             'user_name': user_name,
+#             'candidates': [get_common_candidate_data(candidate) for candidate in candidates],
+#         }
+
+#     response_json = json.dumps(response_data, default=date_handler)
+#     return Response(response=response_json, status=200, mimetype='application/json')
+
+
+
+
+
+BATCH_SIZE = 60
+
 @app.route('/dashboard', methods=['POST'])
 def dashboard():
     data = request.json
@@ -6114,8 +6233,12 @@ def dashboard():
         else_=Candidate.time_created
     )
 
+    # Pagination setup
+    page_no = data.get('page_no', 1)
+    offset = (page_no - 1) * BATCH_SIZE
+
     response_data = {}
-    
+
     if user_type == 'recruiter':
         recruiter = User.query.filter_by(id=user_id, user_type='recruiter').first()
         if recruiter is None:
@@ -6123,12 +6246,18 @@ def dashboard():
 
         recruiters = recruiter.username.split(',')
 
-        candidates = Candidate.query.filter(and_(Candidate.recruiter == recruiter.name, Candidate.reference.is_(None)))\
+        candidates_query = Candidate.query.filter(and_(Candidate.recruiter == recruiter.name, Candidate.reference.is_(None)))\
             .order_by(
                 desc(conditional_order_date),
                 desc(conditional_order_time),
                 desc(Candidate.id)
-            ).all()
+            ).offset(offset).limit(BATCH_SIZE)
+
+        candidates_batch = candidates_query.all()
+
+        total_candidates = db.session.query(Candidate).filter(and_(Candidate.recruiter == recruiter.name, Candidate.reference.is_(None))).count()
+
+        has_more = (page_no * BATCH_SIZE) < total_candidates
 
         jobs_query = JobPost.query.filter(
             or_(*[JobPost.recruiter.like(f"%{recruiter}%") for recruiter in recruiters])
@@ -6145,43 +6274,57 @@ def dashboard():
             'user_type': user_type,
             'user_name': user_name,
             'name': name,
-            'candidates': [get_common_candidate_data(candidate) for candidate in candidates],
+            'candidates': [get_common_candidate_data(candidate) for candidate in candidates_batch],
             'jobs': [get_common_job_data(job) for job in jobs],
             'edit_candidate_message': data.get('edit_candidate_message'),
-            'page_no': data.get('page_no'),
+            'page_no': page_no,
+            'has_more': has_more,  # Indicating if there are more candidates to fetch
         }
 
     elif user_type == 'management':
         users = User.query.all()
 
-        candidates = Candidate.query.filter(Candidate.reference.is_(None))\
+        candidates_query = Candidate.query.filter(Candidate.reference.is_(None))\
             .order_by(
                 desc(conditional_order_date),
                 desc(conditional_order_time),
                 desc(Candidate.id)
-            ).all()
+            ).offset(offset).limit(BATCH_SIZE)
+
+        candidates_batch = candidates_query.all()
+
+        total_candidates = db.session.query(Candidate).filter(Candidate.reference.is_(None)).count()
+
+        has_more = (page_no * BATCH_SIZE) < total_candidates
 
         jobs = JobPost.query.all()
-        
+
         response_data = {
             'users': [{'id': user.id, 'name': user.name, 'user_type': user.user_type, 'email': user.email} for user in users],
             'user_type': user_type,
             'user_name': user_name,
-            'candidates': [get_common_candidate_data(candidate) for candidate in candidates],
+            'candidates': [get_common_candidate_data(candidate) for candidate in candidates_batch],
             'jobs': [get_common_job_data(job) for job in jobs],
             'signup_message': data.get('signup_message'),
             'job_message': data.get('job_message'),
-            'page_no': data.get('page_no'),
+            'page_no': page_no,
+            'has_more': has_more,  # Indicating if there are more candidates to fetch
             'edit_candidate_message': data.get('edit_candidate_message'),
         }
 
     else:
-        candidates = Candidate.query.filter_by(recruiter=user.name)\
+        candidates_query = Candidate.query.filter_by(recruiter=user.name)\
             .order_by(
                 desc(conditional_order_date),
                 desc(conditional_order_time),
                 desc(Candidate.id)
-            ).all()
+            ).offset(offset).limit(BATCH_SIZE)
+
+        candidates_batch = candidates_query.all()
+
+        total_candidates = db.session.query(Candidate).filter_by(recruiter=user.name).count()
+
+        has_more = (page_no * BATCH_SIZE) < total_candidates
 
         response_data = {
             'user': {
@@ -6192,11 +6335,13 @@ def dashboard():
             },
             'user_type': user_type,
             'user_name': user_name,
-            'candidates': [get_common_candidate_data(candidate) for candidate in candidates],
+            'candidates': [get_common_candidate_data(candidate) for candidate in candidates_batch],
+            'has_more': has_more,  # Indicating if there are more candidates to fetch
         }
 
     response_json = json.dumps(response_data, default=date_handler)
     return Response(response=response_json, status=200, mimetype='application/json')
+
 
 ###########################################################################################################
 

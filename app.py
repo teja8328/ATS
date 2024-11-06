@@ -6445,7 +6445,7 @@ def dashboard():
 
     # Fetch job posts
     jobs_query = JobPost.query.all()
-    jobs = jobs_query.all()
+    jobs = jobs_query
 
     # Prepare the response data
     response_data = {

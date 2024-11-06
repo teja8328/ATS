@@ -12464,6 +12464,7 @@ def get_onboarded_candidates():
     return jsonify(sorted_result), 200
 
 
+
 BATCH_SIZE = 60
 
 @app.route('/get_candidates_testing', methods=['GET'])
@@ -12494,7 +12495,13 @@ def get_candidates_testing():
         # Increment the page number for the next batch
         page_no += 1
 
-    # Convert time fields to strings
+    # Function to encode resume to base64
+    def encode_resume(resume_data):
+        if resume_data:
+            return base64.b64encode(resume_data).decode('utf-8')  # Convert binary to base64 string
+        return None
+
+    # Convert time fields and other attributes to dict
     def convert_candidate_to_dict(candidate):
         return {
             'id': candidate.id,
@@ -12524,7 +12531,6 @@ def get_candidates_testing():
             'reason_for_job_change': candidate.reason_for_job_change,
             'remarks': candidate.remarks,
             'date_created': candidate.date_created,
-#            'time_created': candidate.time_created.strftime('%H:%M:%S') if candidate.time_created else None,  # Convert time to string
             'comments': candidate.comments,
             'linkedin_url': candidate.linkedin_url,
             'user_id': candidate.user_id,
@@ -12534,8 +12540,8 @@ def get_candidates_testing():
             'reference_position': candidate.reference_position,
             'reference_information': candidate.reference_information,
             'data_updated_date': candidate.data_updated_date,
-#            'data_updated_time': candidate.data_updated_time.strftime('%H:%M:%S') if candidate.data_updated_time else None,  # Convert time to string
-            'resume_present': candidate.resume_present
+            'resume_present': candidate.resume_present,
+            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
         }
 
     # Prepare the response data

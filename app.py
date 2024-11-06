@@ -12541,7 +12541,7 @@ def get_candidates_testing():
             'reference_information': candidate.reference_information,
             'data_updated_date': candidate.data_updated_date,
             'resume_present': candidate.resume_present,
-            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
+#            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
         }
 
     # Prepare the response data

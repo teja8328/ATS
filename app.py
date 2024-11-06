@@ -6344,7 +6344,7 @@ def get_common_job_data(job):
 
 
 
-BATCH_SIZE = 500
+BATCH_SIZE = 400
 
 @app.route('/dashboard', methods=['POST'])
 def dashboard():

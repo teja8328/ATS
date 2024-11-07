@@ -5090,10 +5090,10 @@ def recruiter_login():
         password = request.json.get('password')
 
         # Hash the entered password
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        #hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         # Check if the user exists and the password is correct
-        user = User.query.filter_by(username=username, password=hashed_password, user_type='recruiter').first()
+        user = User.query.filter_by(username=username, password=password, user_type='recruiter').first()
 
         if user:
             if user.is_active:  # Check if the user is active

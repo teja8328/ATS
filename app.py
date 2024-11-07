@@ -12737,91 +12737,235 @@ def get_onboarded_candidates():
 
 
 
-BATCH_SIZE = 60
+# BATCH_SIZE = 60
 
-@app.route('/get_candidates_testing', methods=['GET'])
-def get_candidates_testing():
-    # Initialize variables
-    all_candidates = []  # This will hold the final list of all candidates
-    page_no = 1  # Start with the first batch
-    has_more = True  # Assume there are more records to fetch initially
+# @app.route('/get_candidates_testing', methods=['GET'])
+# def get_candidates_testing():
+#     # Initialize variables
+#     all_candidates = []  # This will hold the final list of all candidates
+#     page_no = 1  # Start with the first batch
+#     has_more = True  # Assume there are more records to fetch initially
 
-    # Continue fetching data in batches while there are more records to retrieve
-    while has_more:
-        # Calculate the offset for pagination
-        offset = (page_no - 1) * BATCH_SIZE
+#     # Continue fetching data in batches while there are more records to retrieve
+#     while has_more:
+#         # Calculate the offset for pagination
+#         offset = (page_no - 1) * BATCH_SIZE
 
-        # Query the database for the current batch of candidates, ordered by id (descending)
-        candidates_query = db.session.query(Candidate).order_by(desc(Candidate.id))\
-            .offset(offset).limit(BATCH_SIZE)
+#         # Query the database for the current batch of candidates, ordered by id (descending)
+#         candidates_query = db.session.query(Candidate).order_by(desc(Candidate.id))\
+#             .offset(offset).limit(BATCH_SIZE)
 
-        candidates_batch = candidates_query.all()
+#         candidates_batch = candidates_query.all()
 
-        # Add the current batch to the all_candidates list
-        all_candidates.extend(candidates_batch)
+#         # Add the current batch to the all_candidates list
+#         all_candidates.extend(candidates_batch)
 
-        # Check if there are more records by comparing the total number of candidates
-        total_candidates = db.session.query(Candidate).count()
-        has_more = (page_no * BATCH_SIZE) < total_candidates
+#         # Check if there are more records by comparing the total number of candidates
+#         total_candidates = db.session.query(Candidate).count()
+#         has_more = (page_no * BATCH_SIZE) < total_candidates
 
-        # Increment the page number for the next batch
-        page_no += 1
+#         # Increment the page number for the next batch
+#         page_no += 1
 
-    # Function to encode resume to base64
-    def encode_resume(resume_data):
-        if resume_data:
-            return base64.b64encode(resume_data).decode('utf-8')  # Convert binary to base64 string
-        return None
+#     # Function to encode resume to base64
+#     def encode_resume(resume_data):
+#         if resume_data:
+#             return base64.b64encode(resume_data).decode('utf-8')  # Convert binary to base64 string
+#         return None
 
-    # Convert time fields and other attributes to dict
-    def convert_candidate_to_dict(candidate):
-        return {
-            'id': candidate.id,
-            'name': candidate.name,
-            'mobile': candidate.mobile,
-            'email': candidate.email,
-            'client': candidate.client,
-            'current_company': candidate.current_company,
-            'position': candidate.position,
-            'profile': candidate.profile,
-            'current_job_location': candidate.current_job_location,
-            'preferred_job_location': candidate.preferred_job_location,
-            'skills': candidate.skills,
-            'qualifications': candidate.qualifications,
-            'experience': candidate.experience,
-            'relevant_experience': candidate.relevant_experience,
-            'current_ctc': candidate.current_ctc,
-            'expected_ctc': candidate.expected_ctc,
-            'notice_period': candidate.notice_period,
-            'buyout': candidate.buyout,
-            'holding_offer': candidate.holding_offer,
-#            'total': candidate.total,
-            #'package_in_lpa': candidate.package_in_lpa,
-            'recruiter': candidate.recruiter,
-            'management': candidate.management,
-            'status': candidate.status,
-            #'reason_for_job_change': candidate.reason_for_job_change,
-            'remarks': candidate.remarks,
-            'date_created': candidate.date_created,
-            #'comments': candidate.comments,
-            'linkedin_url': candidate.linkedin_url,
-            'user_id': candidate.user_id,
-            #'serving_notice_period': candidate.serving_notice_period,
-            #'reference': candidate.reference,
-            #'reference_name': candidate.reference_name,
-            #'reference_position': candidate.reference_position,
-            #'reference_information': candidate.reference_information,
-            #'data_updated_date': candidate.data_updated_date,
-            'resume_present': candidate.resume_present,
-#            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
-        }
+#     # Convert time fields and other attributes to dict
+#     def convert_candidate_to_dict(candidate):
+#         return {
+#             'id': candidate.id,
+#             'name': candidate.name,
+#             'mobile': candidate.mobile,
+#             'email': candidate.email,
+#             'client': candidate.client,
+#             'current_company': candidate.current_company,
+#             'position': candidate.position,
+#             'profile': candidate.profile,
+#             'current_job_location': candidate.current_job_location,
+#             'preferred_job_location': candidate.preferred_job_location,
+#             'skills': candidate.skills,
+#             'qualifications': candidate.qualifications,
+#             'experience': candidate.experience,
+#             'relevant_experience': candidate.relevant_experience,
+#             'current_ctc': candidate.current_ctc,
+#             'expected_ctc': candidate.expected_ctc,
+#             'notice_period': candidate.notice_period,
+#             'buyout': candidate.buyout,
+#             'holding_offer': candidate.holding_offer,
+# #            'total': candidate.total,
+#             #'package_in_lpa': candidate.package_in_lpa,
+#             'recruiter': candidate.recruiter,
+#             'management': candidate.management,
+#             'status': candidate.status,
+#             #'reason_for_job_change': candidate.reason_for_job_change,
+#             'remarks': candidate.remarks,
+#             'date_created': candidate.date_created,
+#             #'comments': candidate.comments,
+#             'linkedin_url': candidate.linkedin_url,
+#             'user_id': candidate.user_id,
+#             #'serving_notice_period': candidate.serving_notice_period,
+#             #'reference': candidate.reference,
+#             #'reference_name': candidate.reference_name,
+#             #'reference_position': candidate.reference_position,
+#             #'reference_information': candidate.reference_information,
+#             #'data_updated_date': candidate.data_updated_date,
+#             'resume_present': candidate.resume_present,
+# #            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
+#         }
 
-    # Prepare the response data
-    response_data = {
-        'candidates': [convert_candidate_to_dict(candidate) for candidate in all_candidates]
-    }
+#     # Prepare the response data
+#     response_data = {
+#         'candidates': [convert_candidate_to_dict(candidate) for candidate in all_candidates]
+#     }
 
-    return jsonify(response_data), 200
+#     return jsonify(response_data), 200
+
+
+def send_selected_candidate_notification(recruiter_email, input_data, sender_email):
+    # Generate HTML table rows dynamically based on the candidate details
+    table_rows = ""
+    
+    # Check if we have input data and extract job details keys for headers
+    if input_data:
+        job_keys = input_data[0].get('jobDetails', {}).keys()
+        
+        # Add table headers with job detail keys as column names
+        header_row = "<tr>" + "".join([f"<th>{key.replace('_', ' ').title()}</th>" for key in job_keys]) + "</tr>"
+        table_rows += header_row
+    
+        # Generate table rows for each candidate (horizontal format)
+        for candidate in input_data:
+            job_details = candidate.get('jobDetails', {})
+            
+            # Start a new row for each candidate without the name (just job details)
+            row = "<tr>"
+            
+            # Add the job details as columns for each candidate
+            row += "".join([f"<td>{value if value else 'N/A'}</td>" for value in job_details.values()])
+            row += "</tr>"
+            
+            table_rows += row
+    
+    # Define the HTML email body
+    html_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                color: #333;
+                line-height: 1.6;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }}
+            .container {{
+                padding: 20px;
+                margin: 20px auto;
+                max-width: 800px;
+                background-color: #ffffff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }}
+            .header {{
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px;
+                text-align: center;
+                font-size: 20px;
+                border-radius: 8px 8px 0 0;
+            }}
+            table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 10px;
+            }}
+            th, td {{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }}
+            th {{
+                background-color: #4CAF50;
+                color: white;
+            }}
+            tr:nth-child(even) {{
+                background-color: #f9f9f9;
+            }}
+            p {{
+                margin: 10px 0;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 12px;
+                color: #777;
+                text-align: center;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                Candidate Details
+            </div>
+            
+            <table>
+                {table_rows}
+            </table>
+            <p>Please review the candidate details on the Makonis Talent Track Pro portal for more information.</p>
+            <p>Regards,</p>
+            <p><b>Makonis Talent Track Pro Team</b></p>
+        </div>
+    </body>
+    </html>
+    """
+
+    # Create the email message
+    msg = Message(
+        'Candidate Selected for Job',
+        sender=sender_email,
+        recipients=[recruiter_email]
+    )
+    msg.html = html_body
+
+    # Attempt to send the email and handle any errors
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print("Mail error:", str(e))
+        return f'Failed to send mail: {str(e)}'
+    return None
+
+
+
+from collections import defaultdict
+
+@app.route('/selected_details_candidate', methods=['POST'])
+def selected_details_candidate():
+    # Parse incoming JSON data
+    data = request.get_json()
+
+    # Extract data fields
+    selected_stored_data = data.get("selectedDetails", [])
+    local_storage_email = data.get("localStorageEmail")
+    recipient_emails = data.get("recipientEmails")
+
+    # Call the email-sending function and capture any error message
+    error = send_selected_candidate_notification(recipient_emails, selected_stored_data, local_storage_email)
+
+    # Return appropriate JSON response based on success or failure
+    if error:
+        return jsonify({"status": "failure", "message": error}), 500
+    else:
+        return jsonify({"status": "success", "message": "Notification sent successfully"}), 200
+
+
 
 
 

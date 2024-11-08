@@ -1,8 +1,8 @@
 # Microsoft configuration
 
 microsoft_server = 'smtp.office365.com'
-microsoft_mail_username = 'pavan.k@makonissoft.com'
-microsoft_mail_password = 'Roh@64272'
+microsoft_mail_username = 'teja.g@makonissoft.com'
+microsoft_mail_password = 'Mani@9908$'
 
 # Gmail cofiguration
 
@@ -33,4 +33,4 @@ CLIENT_SECRET = '2ET8Q~TkfssfstnbCWmFP2U24phkklo_w080uc7E'
 
 # Sender mail id
 
-sender_email='pavan.k@makonissoft.com'
+sender_email='teja.g@makonissoft.com'

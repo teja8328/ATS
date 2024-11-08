@@ -4934,7 +4934,6 @@ def signup():
         return jsonify({'message': 'You do not have permission to create recruiter accounts.'})
 
 
-
 # @app.route('/signup', methods=['POST'])
 # def signup():
 #     data = request.json

@@ -4906,7 +4906,6 @@ def send_verification_email(new_user, password, verification_link):
             <h2>Hello {new_user.name},</h2>
             <p>Your account for <strong>ATS Makonis Talent Track Pro</strong> is created. Login details:</p>
             <ul><li><strong>Username:</strong> {new_user.username}</li><li><strong>Password:</strong> {password}</li></ul>
-            <p><a href="{verification_link}">Verify Your Account</a> (expires in 24 hours).</p>
             <p><strong>ATS Makonis Talent Track Pro Team</strong></p>
         </div>
     </body>

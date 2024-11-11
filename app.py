@@ -5055,9 +5055,8 @@ def signup():
 
         new_user = {'username': username, 'password': hashed_password, 'name': name, 'email': email, 'user_type': user_type}
 
-        # Add the new user to the session and commit
-        db_session.add(new_user)
-        db_session.commit()  # Commit to save the new user
+        db.session.add(new_user)
+        db.session.commit()
 
         # Generate a verification token
         verification_token = generate_verification_token(user_id)

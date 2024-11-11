@@ -4672,7 +4672,7 @@ def generate_random_password(length=8):
     return "Mak" + password
 
 
-# @app.route('/signup', methods=['POST'])
+# @app.route('', methods=['POST'])
 # def signup():
 #     data = request.json
 #     user_id = data.get('user_id')  # Using get method to avoid KeyError
@@ -4973,8 +4973,8 @@ def signup():
         verification_link = url_for('verify', token=verification_token, _external=True)
 
         # Send the verification email by calling the new function
-        #send_verification_email(new_user, password, verification_link)
-        send_verification_email(new_user, password)
+        send_verification_email(new_user, password, verification_link)
+        #send_verification_email(new_user, password)
 
         return jsonify({'status': 'success',
                          'message': 'A verification email has been sent to your email address. Please check your inbox.',

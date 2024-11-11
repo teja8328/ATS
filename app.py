@@ -5069,7 +5069,7 @@ def signup():
             MAIL_USERNAME='teja.g@makonissoft.com',  # Office 365 email
             MAIL_PASSWORD='Mani@9908$',  # Office 365 email password or app-specific password
             MAIL_DEFAULT_SENDER='teja.g@makonissoft.com',  # Office 365 email
-            MAIL_TIMEOUT=30  # Set the timeout to 30 seconds
+            MAIL_TIMEOUT=60  # Set the timeout to 30 seconds
         )
 
         # Initialize Flask-Mail

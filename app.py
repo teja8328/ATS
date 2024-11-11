@@ -53,6 +53,8 @@ import math
 import google.generativeai as genai
 from details import config
 import docx2txt
+import logging  # Add this line at the top of your file
+
 
 
 

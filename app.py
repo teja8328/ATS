@@ -4871,14 +4871,34 @@ def send_verification_email(new_user, password, verification_link):
     </html>
     '''
 
-    msg = Message('Account Verification', sender=config.sender_email, recipients=[new_user.email])
-    msg.html = html_body
+    msg = Message(
+        'Account Verification', 
+        sender=config.sender_email, 
+        recipients=[new_user.email]
+    )
+    #msg.html = html_body
     try:
         mail.send(msg)
     except Exception as e:
         print("mail error", str(e))
         return f'Failed to send mail: {str(e)}'
     return None
+
+
+
+
+    # msg = Message(
+    #     'New Target Assigned',
+    #     sender=config.sender_email,
+    #     recipients=[recruiter_email]
+    # )
+    # msg.html = html_body
+    # try:
+    #     mail.send(msg)
+    # except Exception as e:
+    #     print("mail error", str(e))
+    #     return f'Failed to send mail: {str(e)}'
+    # return None
 
 # The signup function
 @app.route('/signup', methods=['POST'])

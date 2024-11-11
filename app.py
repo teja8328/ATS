@@ -4886,39 +4886,145 @@ def generate_random_password(length=8):
 
 
 
+#chnages here----------------------------------------------------------------------
+# def send_verification_email(new_user, password, verification_link):
+#     html_body = f"""
+#     <html>
+#     <head>
+#         <style>
+#             body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
+#             .container {{ max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }}
+#             h2 {{ color: #333; }}
+#             p, ul {{ color: #555; }}
+#             ul {{ list-style-type: none; padding: 0; }}
+#             ul li {{ background: #f9f9f9; margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }}
+#             a {{ color: #1a73e8; text-decoration: none; }}
+#         </style>
+#     </head>
+#     <body>
+#         <div class="container">
+#             <h2>Hello {new_user.name},</h2>
+#             <p>Your account for <strong>ATS Makonis Talent Track Pro</strong> is created. Login details:</p>
+#             <ul><li><strong>Username:</strong> {new_user.username}</li><li><strong>Password:</strong> {password}</li></ul>
+#             <p><strong>ATS Makonis Talent Track Pro Team</strong></p>
+#         </div>
+#     </body>
+#     </html>
+#     """
+#     msg = Message('Account Verification', sender=config.sender_email, recipients=[new_user.email])
+#     msg.html = html_body
+#     try:
+#         mail.send(msg)
+#     except Exception as e:
+#         print("mail error", str(e))
+#         return f'Failed to send mail: {str(e)}'
+#     return None
+#chnages here----------------------------------------------------------------------
 
-def send_verification_email(new_user, password, verification_link):
+def send_verification_email(new_user, password):
+    # Generate the verification link using the user's ID
+    verification_link = f"https://starfish-app-txle5.ondigitalocean.app/verifyid/{new_user.id}"
+    
+    # Define the HTML body for the email
     html_body = f"""
     <html>
-    <head>
-        <style>
-            body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
-            .container {{ max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }}
-            h2 {{ color: #333; }}
-            p, ul {{ color: #555; }}
-            ul {{ list-style-type: none; padding: 0; }}
-            ul li {{ background: #f9f9f9; margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }}
-            a {{ color: #1a73e8; text-decoration: none; }}
-        </style>
-    </head>
     <body>
-        <div class="container">
-            <h2>Hello {new_user.name},</h2>
-            <p>Your account for <strong>ATS Makonis Talent Track Pro</strong> is created. Login details:</p>
-            <ul><li><strong>Username:</strong> {new_user.username}</li><li><strong>Password:</strong> {password}</li></ul>
-            <p><strong>ATS Makonis Talent Track Pro Team</strong></p>
-        </div>
+        <h2>Hello {new_user.name},</h2>
+        <p>Your account for <strong>ATS Makonis Talent Track Pro</strong> has been created.</p>
+        <p>Here are your login details:</p>
+        <ul>
+            <li><strong>Username:</strong> {new_user.username}</li>
+            <li><strong>Password:</strong> {password}</li>
+        </ul>
+        <p>To verify your account, please click the link below:</p>
+        <p><a href="{verification_link}">Verify Your Account</a></p>
+        <p>Best regards,</p>
+        <p><strong>ATS Makonis Talent Track Pro Team</strong></p>
     </body>
     </html>
     """
+    
+    # Set up the email message
     msg = Message('Account Verification', sender=config.sender_email, recipients=[new_user.email])
     msg.html = html_body
+    
+    # Send the email and handle any exceptions
     try:
         mail.send(msg)
     except Exception as e:
-        print("mail error", str(e))
+        print("Mail error:", str(e))
         return f'Failed to send mail: {str(e)}'
     return None
+
+
+@app.route('/verifyid/<int:user_id>')
+def verifyid(user_id):
+    user = User.query.get(user_id)
+    
+    if user:
+        if user.is_verified:
+            if user.user_type == 'management':
+                message = 'Your Management Account is already Verified. Please Login!'
+                html_content = f"""
+                <html>
+                <body>
+                    <h2>{message}</h2>
+                    <p><a href="https://ats-makonis.netlify.app/ManagementLogin">Click here to proceed</a></p>
+                </body>
+                </html>
+                """
+                return html_content
+            elif user.user_type == 'recruiter':
+                message = 'Your Recruiter Account is already Verified. Please Login!'
+                html_content = f"""
+                <html>
+                <body>
+                    <h2>{message}</h2>
+                    <p><a href="https://ats-makonis.netlify.app/RecruitmentLogin">Click here to proceed</a></p>
+                </body>
+                </html>
+                """
+                return html_content
+        else:
+            user.is_verified = True
+            db.session.commit()
+            
+            if user.user_type == 'management':
+                message = 'Your Management Account has been Successfully Verified. Please Login!'
+                html_content = f"""
+                <html>
+                <body>
+                    <h2>{message}</h2>
+                    <p><a href="https://ats-makonis.netlify.app/ManagementLogin">Click here to proceed</a></p>
+                </body>
+                </html>
+                """
+                return html_content
+            elif user.user_type == 'recruiter':
+                message = 'Your Recruiter Account has been Successfully Verified. Please Login!'
+                html_content = f"""
+                <html>
+                <body>
+                    <h2>{message}</h2>
+                    <p><a href="https://ats-makonis.netlify.app/RecruitmentLogin">Click here to proceed</a></p>
+                </body>
+                </html>
+                """
+                return html_content
+    else:
+        message = 'User not found or invalid verification link. Please contact support.'
+        html_content = f"""
+        <html>
+        <body>
+            <h2>{message}</h2>
+        </body>
+        </html>
+        """
+        return html_content
+
+
+
+
 
 
 # The signup function
@@ -4967,7 +5073,8 @@ def signup():
         verification_link = url_for('verify', token=verification_token, _external=True)
 
         # Send the verification email by calling the new function
-        send_verification_email(new_user, password, verification_link)
+        #send_verification_email(new_user, password, verification_link)
+        send_verification_email(new_user, password)
 
         return jsonify({'status': 'success',
                          'message': 'A verification email has been sent to your email address. Please check your inbox.',

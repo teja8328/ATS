@@ -4886,30 +4886,109 @@ def generate_random_password(length=8):
 
 
 
+# def send_verification_email(new_user, password, verification_link):
+#     html_body = f"""
+#     <html>
+#     <head>
+#         <style>
+#             body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
+#             .container {{ max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }}
+#             h2 {{ color: #333; }}
+#             p, ul {{ color: #555; }}
+#             ul {{ list-style-type: none; padding: 0; }}
+#             ul li {{ background: #f9f9f9; margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }}
+#             a {{ color: #1a73e8; text-decoration: none; }}
+#         </style>
+#     </head>
+#     <body>
+#         <div class="container">
+#             <h2>Hello {new_user.name},</h2>
+#             <p>Your account for <strong>Makonis Talent Track Pro</strong> is created. Login details:</p>
+#             <ul><li><strong>Username:</strong> {new_user.username}</li><li><strong>Password:</strong> {password}</li></ul>
+#             <p><strong>Makonis Talent Track Pro Team</strong></p>
+#         </div>
+#     </body>
+#     </html>
+#     """
+#     msg = Message('Account Verification', sender=config.sender_email, recipients=[new_user.email])
+#     msg.html = html_body
+#     try:
+#         mail.send(msg)
+#     except Exception as e:
+#         print("mail error", str(e))
+#         return f'Failed to send mail: {str(e)}'
+#     return None
+
+
 def send_verification_email(new_user, password, verification_link):
-    html_body = f"""
+    html_body = f'''
     <html>
     <head>
         <style>
-            body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
-            .container {{ max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }}
-            h2 {{ color: #333; }}
-            p, ul {{ color: #555; }}
-            ul {{ list-style-type: none; padding: 0; }}
-            ul li {{ background: #f9f9f9; margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }}
-            a {{ color: #1a73e8; text-decoration: none; }}
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+            }}
+            .container {{
+                max-width: 600px;
+                margin: auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }}
+            h2 {{
+                color: #333;
+            }}
+            p {{
+                color: #555;
+            }}
+            ul {{
+                list-style-type: none;
+                padding: 0;
+            }}
+            ul li {{
+                background: #f9f9f9;
+                margin: 5px 0;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+            }}
+            a {{
+                color: #1a73e8;
+                text-decoration: none;
+            }}
+            a:hover {{
+                text-decoration: underline;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 0.9em;
+                color: #888;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <h2>Hello {new_user.name},</h2>
-            <p>Your account for <strong>Makonis Talent Track Pro</strong> is created. Login details:</p>
-            <ul><li><strong>Username:</strong> {new_user.username}</li><li><strong>Password:</strong> {password}</li></ul>
-            <p><strong>Makonis Talent Track Pro Team</strong></p>
+            <p>We are pleased to inform you that your account has been successfully created for the <strong> Makonis Talent Track Pro</strong>. Here are your login credentials:</p>
+            <ul>
+                <li><strong>Username:</strong> {new_user.username}</li>
+                <li><strong>Password:</strong> {password}</li>
+            </ul>
+            <p>After successfully verifying your account, you can access the application using the following link:</p>
+            <p><a href="https://ats-makonis.netlify.app/">Application Link (Post Verification)</a></p>
+            <p>If you have any questions or need assistance, please feel free to reach out.</p>
+            <p>Best regards,</p>
+            <p><strong>Admin- Makonis Talent Track Pro Team</strong></p>
+            <div class="footer">
+                <p>This is an automated message, please do not reply.</p>
+            </div>
         </div>
     </body>
     </html>
-    """
+    '''
+
     msg = Message('Account Verification', sender=config.sender_email, recipients=[new_user.email])
     msg.html = html_body
     try:
@@ -4918,8 +4997,6 @@ def send_verification_email(new_user, password, verification_link):
         print("mail error", str(e))
         return f'Failed to send mail: {str(e)}'
     return None
-
-
 
 
 

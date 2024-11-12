@@ -5049,8 +5049,8 @@ def generate_random_password(length=8):
 #     return None
 
 def send_verification_email(new_user, password):
-    verification_url = f"https://ats-makonis.netlify.app/Verfiy?name={new_user.name}"
-    
+    verification_url = f"https://ats-makonis.netlify.app/Verify?name={new_user.name}"
+
     html_body = f'''
     <html>
     <head>

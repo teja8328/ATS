@@ -5102,7 +5102,7 @@ def send_verification_email(new_user, password):
     <body>
         <div class="container">
             <h2>Hello {new_user.name},</h2>
-            <p>We are pleased to inform you that your account has been successfully created for the <strong>ATS Makonis Talent Track Pro</strong>. Here are your login credentials:</p>
+            <p>We are pleased to inform you that your account has been successfully created for the <strong>Makonis Talent Track Pro</strong>. Here are your login credentials:</p>
             <ul>
                 <li><strong>Username:</strong> {new_user.username}</li>
                 <li><strong>Password:</strong> {password}</li>
@@ -5114,7 +5114,8 @@ def send_verification_email(new_user, password):
             <p><a href="https://ats-makonis.netlify.app/">Application Link (Post Verification)</a></p>
             <p>If you have any questions or need assistance, please feel free to reach out.</p>
             <p>Best regards,</p>
-            <p><strong>ATS Makonis Talent Track Pro Team</strong></p>
+            <p>Admin Team,</p>
+            <p><strong>Makonis Talent Track Pro</strong></p>
             <div class="footer">
                 <p>This is an automated message, please do not reply.</p>
             </div>

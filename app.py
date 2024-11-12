@@ -4432,7 +4432,8 @@ def reset_password():
         otp = data['otp']
         new_password = data.get('new_password')
         confirm_password = data.get('confirm_password')
-        new_password_hashed = hashlib.sha256(new_password.encode()).hexdigest()
+        #new_password_hashed = hashlib.sha256(new_password.encode()).hexdigest()
+        new_password_hashed = new_password
 
         user = User.query.filter_by(otp=otp).first()
 
@@ -5161,7 +5162,8 @@ def signup():
 
         # Generate a random password
         password = generate_random_password()
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        #hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        hashed_password = password
 
         created_by = user_name
 
@@ -9551,7 +9553,8 @@ def change_password():
     if username != user.username:
         return jsonify({'status': 'error', 'message': 'Logged in user does not match the provided username.'})
 
-    hashed_old_password = hashlib.sha256(old_password.encode()).hexdigest()
+    #hashed_old_password = hashlib.sha256(old_password.encode()).hexdigest()
+    hashed_old_password = old_password
 
     if user.password != hashed_old_password:
         return jsonify({'status': 'error', 'message': 'Invalid old password.'})
@@ -9562,7 +9565,8 @@ def change_password():
     if new_password != confirm_password:
         return jsonify({'status': 'error', 'message': f'New password and confirm password is not matching.'})
 
-    hashed_new_password = hashlib.sha256(new_password.encode()).hexdigest()
+    #hashed_new_password = hashlib.sha256(new_password.encode()).hexdigest()
+    hashed_new_password = new_password
     user.password = hashed_new_password
     db.session.commit()
 

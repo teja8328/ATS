@@ -13478,6 +13478,9 @@ def get_candidates_testing():
         'candidates': [convert_candidate_to_dict(candidate) for candidate in all_candidates]
     }
 
+    return jsonify(response_data), 200
+
+
 
 # def send_selected_candidate_notification(recruiter_email, input_data, sender_email):
 #     # Generate HTML table rows dynamically based on the candidate details

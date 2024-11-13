@@ -13149,57 +13149,57 @@ def view_resume_research(candidate_id):
         return f'Error processing resume: {str(e)}', 500
 
 
-@app.route('/Get_All_Candidates_dashboard', methods=['GET'])
-def get_all_candidates_dashboard():
-    candidates = Candidate.query.all()
-    candidate_list = []
+# @app.route('/Get_All_Candidates_dashboard', methods=['GET'])
+# def get_all_candidates_dashboard():
+#     candidates = Candidate.query.all()
+#     candidate_list = []
  
-    for candidate in candidates:
-        candidate_data = {
-            'id': candidate.id,
-            'job_id': candidate.job_id,
-            'name': candidate.name,
-            'mobile': candidate.mobile,
-            'email': candidate.email,
-            'client': candidate.client,
-            'current_company': candidate.current_company,
-            'position': candidate.position,
-            'profile': candidate.profile,
-            'current_job_location': candidate.current_job_location,
-            'preferred_job_location': candidate.preferred_job_location,
-            'skills': candidate.skills,
-            'qualifications': candidate.qualifications,
-            'experience': candidate.experience,
-            'relevant_experience': candidate.relevant_experience,
-            'current_ctc': candidate.current_ctc,
-            'expected_ctc': candidate.expected_ctc,
-            'notice_period': candidate.notice_period,
-            'last_working_date': candidate.last_working_date.strftime('%Y-%m-%d') if candidate.last_working_date else None,
-            'buyout': candidate.buyout,
-            'holding_offer': candidate.holding_offer,
-            'total': candidate.total,
-            'package_in_lpa': candidate.package_in_lpa,
-            'recruiter': candidate.recruiter,
-            'management': candidate.management,
-            'status': candidate.status,
-            'reason_for_job_change': candidate.reason_for_job_change,
-            'remarks': candidate.remarks,
-            'date_created': candidate.date_created.strftime('%Y-%m-%d'),
-            'time_created': candidate.time_created.strftime('%H:%M:%S'),
-            'data_updated_date': candidate.data_updated_date.strftime('%Y-%m-%d') if candidate.data_updated_date else None,
-            'data_updated_time': candidate.data_updated_time.strftime('%H:%M:%S') if candidate.data_updated_time else None,
-            'comments': candidate.comments,
-            'linkedin_url': candidate.linkedin_url,
-            'user_id': candidate.user_id,
-            'period_of_notice': candidate.period_of_notice,
-            'reference': candidate.reference,
-            'reference_name': candidate.reference_name,
-            'reference_position': candidate.reference_position,
-            'reference_information': candidate.reference_information,
+#     for candidate in candidates:
+#         candidate_data = {
+#             'id': candidate.id,
+#             'job_id': candidate.job_id,
+#             'name': candidate.name,
+#             'mobile': candidate.mobile,
+#             'email': candidate.email,
+#             'client': candidate.client,
+#             'current_company': candidate.current_company,
+#             'position': candidate.position,
+#             'profile': candidate.profile,
+#             'current_job_location': candidate.current_job_location,
+#             'preferred_job_location': candidate.preferred_job_location,
+#             'skills': candidate.skills,
+#             'qualifications': candidate.qualifications,
+#             'experience': candidate.experience,
+#             'relevant_experience': candidate.relevant_experience,
+#             'current_ctc': candidate.current_ctc,
+#             'expected_ctc': candidate.expected_ctc,
+#             'notice_period': candidate.notice_period,
+#             'last_working_date': candidate.last_working_date.strftime('%Y-%m-%d') if candidate.last_working_date else None,
+#             'buyout': candidate.buyout,
+#             'holding_offer': candidate.holding_offer,
+#             'total': candidate.total,
+#             'package_in_lpa': candidate.package_in_lpa,
+#             'recruiter': candidate.recruiter,
+#             'management': candidate.management,
+#             'status': candidate.status,
+#             'reason_for_job_change': candidate.reason_for_job_change,
+#             'remarks': candidate.remarks,
+#             'date_created': candidate.date_created.strftime('%Y-%m-%d'),
+#             'time_created': candidate.time_created.strftime('%H:%M:%S'),
+#             'data_updated_date': candidate.data_updated_date.strftime('%Y-%m-%d') if candidate.data_updated_date else None,
+#             'data_updated_time': candidate.data_updated_time.strftime('%H:%M:%S') if candidate.data_updated_time else None,
+#             'comments': candidate.comments,
+#             'linkedin_url': candidate.linkedin_url,
+#             'user_id': candidate.user_id,
+#             'period_of_notice': candidate.period_of_notice,
+#             'reference': candidate.reference,
+#             'reference_name': candidate.reference_name,
+#             'reference_position': candidate.reference_position,
+#             'reference_information': candidate.reference_information,
  
-        }
-        candidate_list.append(candidate_data)
-    return jsonify(candidate_list)
+#         }
+#         candidate_list.append(candidate_data)
+#     return jsonify(candidate_list)
 
 
 @app.route('/Get_All_Jobs', methods=['GET'])
@@ -13396,8 +13396,8 @@ def get_onboarded_candidates():
 
 BATCH_SIZE = 60
 
-@app.route('/get_candidates_testing', methods=['GET'])
-def get_candidates_testing():
+@app.route('//Get_All_Candidates_dashboard', methods=['GET'])
+def get_all_candidates_dashboard():
     # Initialize variables
     all_candidates = []  # This will hold the final list of all candidates
     page_no = 1  # Start with the first batch

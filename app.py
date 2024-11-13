@@ -13394,91 +13394,89 @@ def get_onboarded_candidates():
 
 
 
-# BATCH_SIZE = 60
+BATCH_SIZE = 60
 
-# @app.route('/get_candidates_testing', methods=['GET'])
-# def get_candidates_testing():
-#     # Initialize variables
-#     all_candidates = []  # This will hold the final list of all candidates
-#     page_no = 1  # Start with the first batch
-#     has_more = True  # Assume there are more records to fetch initially
+@app.route('/get_candidates_testing', methods=['GET'])
+def get_candidates_testing():
+    # Initialize variables
+    all_candidates = []  # This will hold the final list of all candidates
+    page_no = 1  # Start with the first batch
+    has_more = True  # Assume there are more records to fetch initially
 
-#     # Continue fetching data in batches while there are more records to retrieve
-#     while has_more:
-#         # Calculate the offset for pagination
-#         offset = (page_no - 1) * BATCH_SIZE
+    # Continue fetching data in batches while there are more records to retrieve
+    while has_more:
+        # Calculate the offset for pagination
+        offset = (page_no - 1) * BATCH_SIZE
 
-#         # Query the database for the current batch of candidates, ordered by id (descending)
-#         candidates_query = db.session.query(Candidate).order_by(desc(Candidate.id))\
-#             .offset(offset).limit(BATCH_SIZE)
+        # Query the database for the current batch of candidates, ordered by id (descending)
+        candidates_query = db.session.query(Candidate).order_by(desc(Candidate.id))\
+            .offset(offset).limit(BATCH_SIZE)
 
-#         candidates_batch = candidates_query.all()
+        candidates_batch = candidates_query.all()
 
-#         # Add the current batch to the all_candidates list
-#         all_candidates.extend(candidates_batch)
+        # Add the current batch to the all_candidates list
+        all_candidates.extend(candidates_batch)
 
-#         # Check if there are more records by comparing the total number of candidates
-#         total_candidates = db.session.query(Candidate).count()
-#         has_more = (page_no * BATCH_SIZE) < total_candidates
+        # Check if there are more records by comparing the total number of candidates
+        total_candidates = db.session.query(Candidate).count()
+        has_more = (page_no * BATCH_SIZE) < total_candidates
 
-#         # Increment the page number for the next batch
-#         page_no += 1
+        # Increment the page number for the next batch
+        page_no += 1
 
-#     # Function to encode resume to base64
-#     def encode_resume(resume_data):
-#         if resume_data:
-#             return base64.b64encode(resume_data).decode('utf-8')  # Convert binary to base64 string
-#         return None
+    # Function to encode resume to base64
+    def encode_resume(resume_data):
+        if resume_data:
+            return base64.b64encode(resume_data).decode('utf-8')  # Convert binary to base64 string
+        return None
 
-#     # Convert time fields and other attributes to dict
-#     def convert_candidate_to_dict(candidate):
-#         return {
-#             'id': candidate.id,
-#             'name': candidate.name,
-#             'mobile': candidate.mobile,
-#             'email': candidate.email,
-#             'client': candidate.client,
-#             'current_company': candidate.current_company,
-#             'position': candidate.position,
-#             'profile': candidate.profile,
-#             'current_job_location': candidate.current_job_location,
-#             'preferred_job_location': candidate.preferred_job_location,
-#             'skills': candidate.skills,
-#             'qualifications': candidate.qualifications,
-#             'experience': candidate.experience,
-#             'relevant_experience': candidate.relevant_experience,
-#             'current_ctc': candidate.current_ctc,
-#             'expected_ctc': candidate.expected_ctc,
-#             'notice_period': candidate.notice_period,
-#             'buyout': candidate.buyout,
-#             'holding_offer': candidate.holding_offer,
-# #            'total': candidate.total,
-#             #'package_in_lpa': candidate.package_in_lpa,
-#             'recruiter': candidate.recruiter,
-#             'management': candidate.management,
-#             'status': candidate.status,
-#             #'reason_for_job_change': candidate.reason_for_job_change,
-#             'remarks': candidate.remarks,
-#             'date_created': candidate.date_created,
-#             #'comments': candidate.comments,
-#             'linkedin_url': candidate.linkedin_url,
-#             'user_id': candidate.user_id,
-#             #'serving_notice_period': candidate.serving_notice_period,
-#             #'reference': candidate.reference,
-#             #'reference_name': candidate.reference_name,
-#             #'reference_position': candidate.reference_position,
-#             #'reference_information': candidate.reference_information,
-#             #'data_updated_date': candidate.data_updated_date,
-#             'resume_present': candidate.resume_present,
-# #            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
-#         }
+    # Convert time fields and other attributes to dict
+    def convert_candidate_to_dict(candidate):
+        return {
+            'id': candidate.id,
+            'name': candidate.name,
+            'mobile': candidate.mobile,
+            'email': candidate.email,
+            'client': candidate.client,
+            'current_company': candidate.current_company,
+            'position': candidate.position,
+            'profile': candidate.profile,
+            'current_job_location': candidate.current_job_location,
+            'preferred_job_location': candidate.preferred_job_location,
+            'skills': candidate.skills,
+            'qualifications': candidate.qualifications,
+            'experience': candidate.experience,
+            'relevant_experience': candidate.relevant_experience,
+            'current_ctc': candidate.current_ctc,
+            'expected_ctc': candidate.expected_ctc,
+            'notice_period': candidate.notice_period,
+            'buyout': candidate.buyout,
+            'holding_offer': candidate.holding_offer,
+            'total': candidate.total,
+            'package_in_lpa': candidate.package_in_lpa,
+            'recruiter': candidate.recruiter,
+            'management': candidate.management,
+            'status': candidate.status,
+            'reason_for_job_change': candidate.reason_for_job_change,
+            'remarks': candidate.remarks,
+            'date_created': candidate.date_created,
+            'comments': candidate.comments,
+            'linkedin_url': candidate.linkedin_url,
+            'user_id': candidate.user_id,
+            'serving_notice_period': candidate.serving_notice_period,
+            'reference': candidate.reference,
+            'reference_name': candidate.reference_name,
+            'reference_position': candidate.reference_position,
+            'reference_information': candidate.reference_information,
+            'data_updated_date': candidate.data_updated_date,
+            'resume_present': candidate.resume_present,
+#            'resume': encode_resume(candidate.resume),  # Encode the resume as base64
+        }
 
-#     # Prepare the response data
-#     response_data = {
-#         'candidates': [convert_candidate_to_dict(candidate) for candidate in all_candidates]
-#     }
-
-#     return jsonify(response_data), 200
+    # Prepare the response data
+    response_data = {
+        'candidates': [convert_candidate_to_dict(candidate) for candidate in all_candidates]
+    }
 
 
 # def send_selected_candidate_notification(recruiter_email, input_data, sender_email):

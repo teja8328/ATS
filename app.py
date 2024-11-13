@@ -5049,8 +5049,100 @@ def generate_random_password(length=8):
 #         return f'Failed to send mail: {str(e)}'
 #     return None
 
+# def send_verification_email(new_user, password):
+#     verification_url = f"https://ats-makonis.netlify.app/Verify?name={new_user.name}"
+
+#     html_body = f'''
+#     <html>
+#     <head>
+#         <style>
+#             body {{
+#                 font-family: Arial, sans-serif;
+#                 line-height: 1.6;
+#             }}
+#             .container {{
+#                 max-width: 600px;
+#                 margin: auto;
+#                 padding: 20px;
+#                 border: 1px solid #ddd;
+#                 border-radius: 5px;
+#                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+#             }}
+#             h2 {{
+#                 color: #333;
+#             }}
+#             p {{
+#                 color: #555;
+#             }}
+#             ul {{
+#                 list-style-type: none;
+#                 padding: 0;
+#             }}
+#             ul li {{
+#                 background: #f9f9f9;
+#                 margin: 5px 0;
+#                 padding: 10px;
+#                 border: 1px solid #ddd;
+#                 border-radius: 3px;
+#             }}
+#             a {{
+#                 color: #1a73e8;
+#                 text-decoration: none;
+#             }}
+#             a:hover {{
+#                 text-decoration: underline;
+#             }}
+#             .footer {{
+#                 margin-top: 20px;
+#                 font-size: 0.9em;
+#                 color: #888;
+#             }}
+#         </style>
+#     </head>
+#     <body>
+#         <div class="container">
+#             <h2>Hello {new_user.name},</h2>
+#             <p>We are pleased to inform you that your account has been successfully created for the <strong>Makonis Talent Track Pro</strong>. Here are your login credentials:</p>
+#             <ul>
+#                 <li><strong>Username:</strong> {new_user.username}</li>
+#                 <li><strong>Password:</strong> {password}</li>
+#             </ul>
+#             <p>Please note that the verification link will expire after 24 hours.</p>
+#             <p>To verify your account, please click on the following link:</p>
+#             <p><a href="{verification_url}">Verify Your Account</a></p>
+#             <p>After successfully verifying your account, you can access the application using the following link:</p>
+#             <p><a href="https://ats-makonis.netlify.app/">Application Link (Post Verification)</a></p>
+#             <p>If you have any questions or need assistance, please feel free to reach out.</p>
+#             <p>Best regards,</p>
+#             <p>Admin Team,</p>
+#             <p><strong>Makonis Talent Track Pro</strong></p>
+#             <div class="footer">
+#                 <p>This is an automated message, please do not reply.</p>
+#             </div>
+#         </div>
+#     </body>
+#     </html>
+#     '''
+
+#     msg = Message('Account Verification', sender=config.sender_email, recipients=[new_user.email])
+#     msg.html = html_body
+#     try:
+#         mail.send(msg)
+#     except Exception as e:
+#         print("mail error", str(e))
+#         return f'Failed to send mail: {str(e)}'
+#     return None
+
 def send_verification_email(new_user, password):
     verification_url = f"https://ats-makonis.netlify.app/Verify?name={new_user.name}"
+
+    # Choose the post-verification link based on new_user.user_type
+    if new_user.user_type == "management":
+        post_verification_link = "https://ats-makonis.netlify.app/ManagementLogin"
+    elif new_user.user_type == "recruiter":
+        post_verification_link = "https://ats-makonis.netlify.app/RecruitmentLogin"
+    else:
+        post_verification_link = "https://ats-makonis.netlify.app/"  # Default link if user_type is unrecognized
 
     html_body = f'''
     <html>
@@ -5111,7 +5203,7 @@ def send_verification_email(new_user, password):
             <p>To verify your account, please click on the following link:</p>
             <p><a href="{verification_url}">Verify Your Account</a></p>
             <p>After successfully verifying your account, you can access the application using the following link:</p>
-            <p><a href="https://ats-makonis.netlify.app/">Application Link (Post Verification)</a></p>
+            <p><a href="{post_verification_link}">Application Link (Post Verification)</a></p>
             <p>If you have any questions or need assistance, please feel free to reach out.</p>
             <p>Best regards,</p>
             <p>Admin Team,</p>
@@ -5132,7 +5224,6 @@ def send_verification_email(new_user, password):
         print("mail error", str(e))
         return f'Failed to send mail: {str(e)}'
     return None
-
 
 
 

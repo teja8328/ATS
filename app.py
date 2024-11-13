@@ -13318,14 +13318,14 @@ def recruiter_target():
         # Call the function to send a notification
         
         #----------------------------------------------------
-        notification_error = recruiter_target_send_notification(
-            recruiter_email=recruiter.email,
-            new_recruiter_name=recruiter_name,
-            days=days_value,
-            target_given=data['target_given']
-        )
-        if notification_error:
-            print("Notification error:", notification_error)  # Debugging line
+        # notification_error = recruiter_target_send_notification(
+        #     recruiter_email=recruiter.email,
+        #     new_recruiter_name=recruiter_name,
+        #     days=days_value,
+        #     target_given=data['target_given']
+        # )
+        # if notification_error:
+        #     print("Notification error:", notification_error)  # Debugging line
 #-------------------------------------------------------------------------------------
         # Commit after each iteration
         try:
@@ -13641,7 +13641,7 @@ app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
 
 # This function will send the email to the recruiter
-def send_selected_candidate_notification(sender_email, input_data, recruiter_email, password):
+def send_selected_candidate_notification(sender_email, input_data, recruiter_email, password,subject,body):
     # Set up the sender email configuration dynamically
     app.config['MAIL_USERNAME'] = sender_email
     app.config['MAIL_DEFAULT_SENDER'] = sender_email
@@ -13660,14 +13660,14 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
     if input_data:
         job_keys = input_data[0].get('jobDetails', {}).keys()
         
-        # Create table headers
-        header_row = "<thead><tr>" + "".join([f"<th>{key.replace('_', ' ').title()}</th>" for key in job_keys]) + "</tr></thead>"
+        # Create table headers with an additional Serial No. column
+        header_row = "<thead><tr><th>Serial No.</th>" + "".join([f"<th>{key.replace('_', ' ').title()}</th>" for key in job_keys]) + "</tr></thead>"
         table_rows += header_row
 
-        # Create table rows for each candidate
-        for candidate in input_data:
+        # Create table rows for each candidate with a serial number
+        for index, candidate in enumerate(input_data, start=1):
             job_details = candidate.get('jobDetails', {})
-            row = "<tbody><tr>" + "".join([f"<td>{value if value else 'N/A'}</td>" for value in job_details.values()]) + "</tr></tbody>"
+            row = f"<tbody><tr><td>{index}</td>" + "".join([f"<td>{value if value else 'N/A'}</td>" for value in job_details.values()]) + "</tr></tbody>"
             table_rows += row
     
     # Define the HTML body content
@@ -13741,20 +13741,30 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
                 border-top: 1px solid #ddd;
                 padding-top: 10px;
             }}
+            p {{
+                margin:0;
+                margin-left:10px;
+            }}
+            .space{{
+                padding:10px;
+                margin-top:10px;
+            }}
         </style>
     </head>
     <body>
-        <div class="container">
+
+         <div class="container">
+            <p>{body}</p> <!-- Moved {body} here, above the table -->
             <table>
-            <caption class="header">Candidate Details</caption>
-              <tbody>
-            {table_rows}
-        </tbody>
+                <caption class="header">Candidate Details</caption>
+                <tbody>
+                    {table_rows}
+                </tbody>
             </table>
-        
-            <p>Please review the candidate details on the Makonis Talent Track Pro portal for more information.</p>
+            <span class="space">Please review the candidate details on the Makonis Talent Track Pro portal for more information.</span>
             <p>Regards,</p>
-            <p><b>Makonis Talent Track Pro Team</b></p>
+            <p>Admin Team</p>
+            <p><b>Makonis Talent Track Pro</b></p>
         </div>
     </body>
     </html>
@@ -13762,7 +13772,7 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
     
     # Create the email message
     msg = Message(
-        'Candidate Selected for Job',
+        subject,
         sender=sender_email,
         recipients=[recruiter_email]
     )

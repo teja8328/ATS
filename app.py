@@ -7819,7 +7819,7 @@ def update_candidate(candidate_id):
     candidate.data_updated_time = current_datetime.time()
 
    # If candidate is on-boarded, decrement the job post's no_of_positions count
-    if candidate_status == "ON-BOARDED":
+    if candidate_status == "ON - BOARDED":
         job_post = JobPost.query.filter_by(id=candidate.job_id).first()
         if job_post and job_post.no_of_positions is not None and int(job_post.no_of_positions) > 0:
             job_post.no_of_positions = str(int(job_post.no_of_positions) - 1)

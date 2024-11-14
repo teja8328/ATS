@@ -13561,6 +13561,7 @@ def get_all_candidates_dashboard():
     def convert_candidate_to_dict(candidate):
         return {
             'id': candidate.id,
+            'job_id': candidate.job_id,
             'name': candidate.name,
             'mobile': candidate.mobile,
             'email': candidate.email,

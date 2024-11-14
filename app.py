@@ -9170,7 +9170,7 @@ def view_all_jobs():
     )
 
     # Set batch size
-    batch_size = 30
+    batch_size = 200
     job_posts_active = []
     job_posts_hold = []
 

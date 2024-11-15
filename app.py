@@ -14130,16 +14130,19 @@ def selected_details_candidate():
 
     # Extract relevant fields from the request data
     selected_stored_data = data.get("selectedDetails", [])
-    print(selected_stored_data)
+    #print(selected_stored_data)
     sender_email = data.get("localStorageEmail")
-    print(sender_email)
+    #print(sender_email)
     recruiter_email = data.get("recipientEmails")
-    print(recruiter_email)
+    #print(recruiter_email)
     password = data.get("Emailpassword")  # The password for email authentication
-    print(password)
+    #print(password)
+    subject = data.get("emailSubject", "")
+    body = data.get("emailBody", "")
+
 
     # Call the function to send the email and capture any error
-    error = send_selected_candidate_notification(sender_email, selected_stored_data, recruiter_email, password)
+    error = send_selected_candidate_notification(sender_email, selected_stored_data, recruiter_email, password,subject,body)
 
     # Return the response based on success or failure
     if error:

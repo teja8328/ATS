@@ -13660,7 +13660,7 @@ def get_all_candidates_dashboard():
             'total': candidate.total,
             'recruiter': candidate.recruiter,
             'management': candidate.management,
-            'status': candidate.status,,
+            'status': candidate.status,
             'date_created': candidate.date_created,
             'user_id': candidate.user_id,
             'serving_notice_period': candidate.serving_notice_period,

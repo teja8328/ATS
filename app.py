@@ -9151,6 +9151,132 @@ import base64
 #     return jsonify(response_data)
 
 
+# @app.route('/view_all_jobs', methods=['POST'])
+# def view_all_jobs():
+#     data = request.json
+#     user_name = data['username']
+
+#     # Define case statements for conditional ordering
+#     conditional_order_date = case(
+#         (JobPost.data_updated_date != None, JobPost.data_updated_date),
+#         (JobPost.date_created != None, JobPost.date_created),
+#         else_=JobPost.date_created
+#     )
+
+#     conditional_order_time = case(
+#         (JobPost.data_updated_time != None, JobPost.data_updated_time),
+#         (JobPost.time_created != None, JobPost.time_created),
+#         else_=JobPost.time_created
+#     )
+
+#     # Set batch size
+#     batch_size = 200
+#     job_posts_active = []
+#     job_posts_hold = []
+
+#     # Retrieve active job posts in batches
+#     offset = 0
+#     while True:
+#         batch = JobPost.query.filter_by(job_status='Active')\
+#             .order_by(
+#                 desc(conditional_order_date),
+#                 desc(conditional_order_time),
+#                 desc(JobPost.id)
+#             )\
+#             .limit(batch_size)\
+#             .offset(offset)\
+#             .all()
+#         if not batch:
+#             break
+#         job_posts_active.extend(batch)
+#         offset += batch_size
+
+#     # Retrieve hold job posts in batches
+#     offset = 0
+#     while True:
+#         batch = JobPost.query.filter_by(job_status='Hold')\
+#             .order_by(
+#                 desc(conditional_order_date),
+#                 desc(conditional_order_time),
+#                 desc(JobPost.id)
+#             )\
+#             .limit(batch_size)\
+#             .offset(offset)\
+#             .all()
+#         if not batch:
+#             break
+#         job_posts_hold.extend(batch)
+#         offset += batch_size
+
+#     # Construct JSON response
+#     response_data = {
+#         "user_name": user_name,
+#         "job_posts_active": [
+#             {
+#                 "id": job_post.id,
+#                 "client": job_post.client,
+#                 "role": job_post.role,
+#                 "experience_min": job_post.experience_min,
+#                 "experience_max": job_post.experience_max,
+#                 "budget_min": job_post.budget_min,
+#                 "budget_max": job_post.budget_max,
+#                 "location": job_post.location,
+#                 "shift_timings": job_post.shift_timings,
+#                 "notice_period": job_post.notice_period,
+#                 "detailed_jd": job_post.detailed_jd,
+#                 "jd_pdf": base64.b64encode(job_post.jd_pdf).decode('utf-8') if job_post.jd_pdf else None,
+#                 "mode": job_post.mode,
+#                 "recruiter": job_post.recruiter,
+#                 "management": job_post.management,
+#                 "job_status": job_post.job_status,
+#                 "job_type": job_post.job_type,
+#                 "contract_in_months": job_post.contract_in_months,
+#                 "skills": job_post.skills,
+#                 "date_created": job_post.date_created.isoformat() if job_post.date_created else None,
+#                 "time_created": job_post.time_created.strftime('%H:%M:%S') if job_post.time_created else None,
+#                 "data_updated_date": job_post.data_updated_date.isoformat() if job_post.data_updated_date else None,
+#                 "data_updated_time": job_post.data_updated_time.strftime('%H:%M:%S') if job_post.data_updated_time else None,
+#                 "jd_pdf_present": job_post.jd_pdf_present,
+#                 "no_of_positions": job_post.no_of_positions
+#             }
+#             for job_post in job_posts_active
+#         ],
+#         "job_posts_hold": [
+#             {
+#                 "id": job_post.id,
+#                 "client": job_post.client,
+#                 "role": job_post.role,
+#                 "experience_min": job_post.experience_min,
+#                 "experience_max": job_post.experience_max,
+#                 "budget_min": job_post.budget_min,
+#                 "budget_max": job_post.budget_max,
+#                 "location": job_post.location,
+#                 "shift_timings": job_post.shift_timings,
+#                 "notice_period": job_post.notice_period,
+#                 "detailed_jd": job_post.detailed_jd,
+#                 "jd_pdf": base64.b64encode(job_post.jd_pdf).decode('utf-8') if job_post.jd_pdf else None,
+#                 "mode": job_post.mode,
+#                 "recruiter": job_post.recruiter,
+#                 "management": job_post.management,
+#                 "job_status": job_post.job_status,
+#                 "job_type": job_post.job_type,
+#                 "contract_in_months": job_post.contract_in_months,
+#                 "skills": job_post.skills,
+#                 "date_created": job_post.date_created.isoformat() if job_post.date_created else None,
+#                 "time_created": job_post.time_created.strftime('%H:%M:%S') if job_post.time_created else None,
+#                 "data_updated_date": job_post.data_updated_date.isoformat() if job_post.data_updated_date else None,
+#                 "data_updated_time": job_post.data_updated_time.strftime('%H:%M:%S') if job_post.data_updated_time else None,
+#                 "jd_pdf_present": job_post.jd_pdf_present,
+#                 "no_of_positions": job_post.no_of_positions
+#             }
+#             for job_post in job_posts_hold
+#         ]
+#     }
+
+#     # Return JSON response
+#     return jsonify(response_data)
+
+
 @app.route('/view_all_jobs', methods=['POST'])
 def view_all_jobs():
     data = request.json
@@ -9169,44 +9295,30 @@ def view_all_jobs():
         else_=JobPost.time_created
     )
 
-    # Set batch size
-    batch_size = 200
-    job_posts_active = []
-    job_posts_hold = []
+    # Retrieve job posts with conditional ordering
+    job_posts_active = JobPost.query.filter_by(job_status='Active')\
+        .order_by(
+            desc(conditional_order_date),
+            desc(conditional_order_time),
+            desc(JobPost.id)
+        )\
+        .all()
 
-    # Retrieve active job posts in batches
-    offset = 0
-    while True:
-        batch = JobPost.query.filter_by(job_status='Active')\
-            .order_by(
-                desc(conditional_order_date),
-                desc(conditional_order_time),
-                desc(JobPost.id)
-            )\
-            .limit(batch_size)\
-            .offset(offset)\
-            .all()
-        if not batch:
-            break
-        job_posts_active.extend(batch)
-        offset += batch_size
-
-    # Retrieve hold job posts in batches
-    offset = 0
-    while True:
-        batch = JobPost.query.filter_by(job_status='Hold')\
-            .order_by(
-                desc(conditional_order_date),
-                desc(conditional_order_time),
-                desc(JobPost.id)
-            )\
-            .limit(batch_size)\
-            .offset(offset)\
-            .all()
-        if not batch:
-            break
-        job_posts_hold.extend(batch)
-        offset += batch_size
+    job_posts_hold = JobPost.query.filter_by(job_status='Hold')\
+        .order_by(
+            desc(conditional_order_date),
+            desc(conditional_order_time),
+            desc(JobPost.id)
+        )\
+        .all()
+    
+    job_posts_closed = JobPost.query.filter_by(job_status='Close')\
+        .order_by(
+            desc(conditional_order_date),
+            desc(conditional_order_time),
+            desc(JobPost.id)
+        )\
+        .all()
 
     # Construct JSON response
     response_data = {
@@ -9270,13 +9382,41 @@ def view_all_jobs():
                 "no_of_positions": job_post.no_of_positions
             }
             for job_post in job_posts_hold
+        ],
+        "job_posts_closed": [
+            {
+                "id": job_post.id,
+                "client": job_post.client,
+                "role": job_post.role,
+                "experience_min": job_post.experience_min,
+                "experience_max": job_post.experience_max,
+                "budget_min": job_post.budget_min,
+                "budget_max": job_post.budget_max,
+                "location": job_post.location,
+                "shift_timings": job_post.shift_timings,
+                "notice_period": job_post.notice_period,
+                "detailed_jd": job_post.detailed_jd,
+                "jd_pdf": base64.b64encode(job_post.jd_pdf).decode('utf-8') if job_post.jd_pdf else None,
+                "mode": job_post.mode,
+                "recruiter": job_post.recruiter,
+                "management": job_post.management,
+                "job_status": job_post.job_status,
+                "job_type": job_post.job_type,
+                "contract_in_months": job_post.contract_in_months,
+                "skills": job_post.skills,
+                "date_created": job_post.date_created.isoformat() if job_post.date_created else None,
+                "time_created": job_post.time_created.strftime('%H:%M:%S') if job_post.time_created else None,
+                "data_updated_date": job_post.data_updated_date.isoformat() if job_post.data_updated_date else None,
+                "data_updated_time": job_post.data_updated_time.strftime('%H:%M:%S') if job_post.data_updated_time else None,
+                "jd_pdf_present": job_post.jd_pdf_present,
+                "no_of_positions": job_post.no_of_positions
+            }
+            for job_post in job_posts_closed
         ]
     }
 
     # Return JSON response
     return jsonify(response_data)
-
-    
 
 
 

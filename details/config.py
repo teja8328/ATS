@@ -15,6 +15,7 @@ gmail_password = 'your_password'
 # Gemini Api Key
 
 api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"
+#AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU
 # api_key = "AIzaSyDVMofXJ9iFFom9jQfWf8b79BVn_HJqOso"
 #api_key = "AIzaSyABp7NiK0EKISlDFq57qb9TKeXh8cm2M2o"
 # api_key = "AIzaSyCaomq7mgoAeivD_sLaqGDpKrg77PcqE4s"

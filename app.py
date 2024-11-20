@@ -8696,7 +8696,7 @@ def post_job():
             'job_status': data['job_status'],
             'skills': data['skills'],
             'job_type': data['Job_Type'],
-            'no_of_positions': data['no_of_positions'],
+            'no_of_positions': data.get('no_of_positions', "0"),
             'contract_in_months': data['Job_Type_details'] if data['Job_Type'] == 'Contract' else None
         }
     except KeyError as e:

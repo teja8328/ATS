@@ -3912,6 +3912,59 @@ def clean_response_job_info(text):
     text = text.replace('json', '')  # Remove 'json ' prefix if present
     return text
 
+def clean_response_carrer_progress(text):
+    # text = re.sub(r'[*"#]', '', text)
+    # text = re.sub(r'\s+', ' ', text).strip()
+    # text = text.replace('}, {', '},\n{').replace('},\n{', '},\n{')
+    text = text.replace('```python', '').replace('```', '')
+    text = text.replace('json', '')  # Remove 'json ' prefix if present
+    return text
+
+
+
+
+def parse_string_to_list_of_dicts(input_string):
+    # Remove any leading/trailing whitespace
+    input_string = input_string.strip()
+
+    # Ensure the string is enclosed by square brackets
+    if input_string.startswith("[") and input_string.endswith("]"):
+        input_string = input_string[1:-1]
+
+    result = []
+    current_dict = {}
+    key, value = None, None
+    is_in_string = False
+    buffer = ""
+
+    for char in input_string:
+        if char in ['"', "'"]:  # Toggle string mode
+            is_in_string = not is_in_string
+            buffer += char
+        elif char == "{" and not is_in_string:  # Start of a dictionary
+            current_dict = {}
+        elif char == "}" and not is_in_string:  # End of a dictionary
+            if buffer.strip():  # Add last key-value pair
+                key, value = buffer.split(":", 1)
+                key = key.strip().strip("'\"")
+                value = value.strip().strip("'\"")
+                current_dict[key] = value
+            result.append(current_dict)
+            buffer = ""
+        elif char == "," and not is_in_string:
+            if ":" in buffer:  # Handle key-value pair
+                key, value = buffer.split(":", 1)
+                key = key.strip().strip("'\"")
+                value = value.strip().strip("'\"")
+                current_dict[key] = value
+                buffer = ""
+        else:
+            buffer += char
+
+    return result
+
+
+
 
 @app.route('/candidate_over_view', methods=['POST'])
 def candidate_over_view():
@@ -4181,7 +4234,7 @@ This is the flow:
     formatted_expertise_text = clean_response(expertise_text)
     #formatted_job_info_text = clean_response(job_info_text)
     formatted_job_info_text = clean_response_job_info(job_info_text)
-    formatted_career_progress_text = clean_response(carrer_progress_text)
+    formatted_career_progress_text = clean_response_carrer_progress(carrer_progress_text)
     formatted_candidate_learning_text = clean_response(candidate_learning_text)
     formatted_candidate_learning_textual_representation_text_clean = clean_response(candidate_learning_textual_representation_text)
 
@@ -4189,7 +4242,7 @@ This is the flow:
     formatted_Analyze_candidate_profile_text = format_analyze_candidate_profile(Analyze_candidate_profile_text)
     #formatted_job_info_text = format_job_info_text(formatted_job_info_text)
     formatted_job_info_text = parse_string_to_dict(formatted_job_info_text)
-    formatted_career_progress_text = parse_career_progress(formatted_career_progress_text)
+    formatted_career_progress_text = parse_string_to_list_of_dicts(formatted_career_progress_text)
     formatted_expertise_text = parse_expertise_text(formatted_expertise_text)
     formatted_candidate_learning_text = convert_to_array(formatted_candidate_learning_text)
     formatted_candidate_learning_textual_representation_text = convert_to_array_textual_representation(formatted_candidate_learning_textual_representation_text_clean)

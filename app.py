@@ -4116,6 +4116,8 @@ Candidate Maximum Budget: 0
 Analyze the following {pdf_text} and provide a detailed overview of the candidate's career progress. Focus on the progression of job titles, the duration of each position, and notable achievements in each role. Highlight the candidate's growth and development over time, including roles, promotions, location of company, project title  and achievements. Discuss any patterns or significant milestones, such as shifts in industry, increasing levels of responsibility, or specialized expertise development.
 
 For each role, provide the following details in the array format (no responsibilities or detailed explanations):
+present the output in below format only dont give any explations
+
 [
     {{
         'Company': '',

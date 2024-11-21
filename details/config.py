@@ -13,8 +13,8 @@ gmail_username = 'abc@gmail.com'
 gmail_password = 'your_password'
 
 # Gemini Api Key
-
-api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"
+api_key ="AIzaSyCh4a285jd96Dud3deiwTAoDW5OyT_CvyU"
+#api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"
 #AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU
 # api_key = "AIzaSyDVMofXJ9iFFom9jQfWf8b79BVn_HJqOso"
 #api_key = "AIzaSyABp7NiK0EKISlDFq57qb9TKeXh8cm2M2o"

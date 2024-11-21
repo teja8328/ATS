@@ -3844,6 +3844,75 @@ def convert_to_array_textual_representation(candidate_learning_text):
     }
 
 
+def parse_string_to_dict(input_string):
+    input_string = input_string.strip()  # Remove any leading/trailing whitespace
+    
+    # Remove the outer curly braces
+    if input_string.startswith("{") and input_string.endswith("}"):
+        input_string = input_string[1:-1]
+    
+    result = {}
+    current_key = None
+    current_value = None
+    is_in_list = False
+    is_in_string = False
+    buffer = ""
+
+    for char in input_string:
+        if char == "'" or char == '"':  # Handle single or double quotes
+            is_in_string = not is_in_string
+            buffer += char
+        elif char == "[":
+            is_in_list = True
+            buffer += char
+        elif char == "]":
+            is_in_list = False
+            buffer += char
+        elif char == "," and not is_in_string and not is_in_list:
+            # End of key-value pair, process buffer
+            key, value = buffer.split(":", 1)
+            key = key.strip().strip("'\"")  # Clean up key
+            value = value.strip()
+
+            # Process list or single value
+            if value.startswith("[") and value.endswith("]"):
+                value = value[1:-1].split(",")
+                value = [v.strip().strip("'\"") for v in value]
+            else:
+                value = value.strip("'\"")
+            
+            result[key] = value
+            buffer = ""  # Clear buffer for the next pair
+        else:
+            buffer += char
+
+    # Handle the last buffer
+    if buffer:
+        key, value = buffer.split(":", 1)
+        key = key.strip().strip("'\"")
+        value = value.strip()
+        if value.startswith("[") and value.endswith("]"):
+            value = value[1:-1].split(",")
+            value = [v.strip().strip("'\"") for v in value]
+        else:
+            value = value.strip("'\"")
+        result[key] = value
+
+    return result
+
+
+
+
+
+def clean_response_job_info(text):
+    # text = re.sub(r'[*"#]', '', text)
+    # text = re.sub(r'\s+', ' ', text).strip()
+    # text = text.replace('}, {', '},\n{').replace('},\n{', '},\n{')
+    text = text.replace('```python', '').replace('```', '')
+    text = text.replace('json', '')  # Remove 'json ' prefix if present
+    return text
+
+
 @app.route('/candidate_over_view', methods=['POST'])
 def candidate_over_view():
     data = request.json
@@ -4110,14 +4179,16 @@ This is the flow:
         return jsonify({"error": "Failed to access Analyze Candidate Profile response text"}), 500
 
     formatted_expertise_text = clean_response(expertise_text)
-    formatted_job_info_text = clean_response(job_info_text)
+    #formatted_job_info_text = clean_response(job_info_text)
+    formatted_job_info_text = clean_response_job_info(job_info_text)
     formatted_career_progress_text = clean_response(carrer_progress_text)
     formatted_candidate_learning_text = clean_response(candidate_learning_text)
     formatted_candidate_learning_textual_representation_text_clean = clean_response(candidate_learning_textual_representation_text)
 
 
     formatted_Analyze_candidate_profile_text = format_analyze_candidate_profile(Analyze_candidate_profile_text)
-    formatted_job_info_text = format_job_info_text(formatted_job_info_text)
+    #formatted_job_info_text = format_job_info_text(formatted_job_info_text)
+    formatted_job_info_text = parse_string_to_dict(formatted_job_info_text)
     formatted_career_progress_text = parse_career_progress(formatted_career_progress_text)
     formatted_expertise_text = parse_expertise_text(formatted_expertise_text)
     formatted_candidate_learning_text = convert_to_array(formatted_candidate_learning_text)

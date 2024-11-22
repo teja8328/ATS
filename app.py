@@ -4041,7 +4041,7 @@ Analyze the following {pdf_text} and {job_details}. Provide the details in the f
 
 Output format:
 
-categories = {{
+{{
     'Candidate': ['Candidate Name'],
     'Candidate Experience': ['Total experience in years'],
     'Candidate Experience Percentage': ['Calculated as described below'],

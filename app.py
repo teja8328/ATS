@@ -4265,12 +4265,17 @@ This is the flow:
 
 4. Scoring/Ranking: Assign a relevance score to each candidate based on how well their skills and experience match the {job_details} and market trends.
 
-*Example Arrays*:
-- *Skills/Domain*: ["Core Java", "Spring Boot", "Database", ...]
-- *Candidate Experience*: ["High", "Low", "Moderate", ...]
-- *Relevance Score*: [5, 4, 2, 3, ...]
+while giving Candidate Experience, values should be "High","Moderate","Low" depending on experience he has on each skill
+while calculating Relevance Score it should be (0 to 5) on a scale of 5, how much each skill is relevent to present market trends means is this skill in demand ,if high demand score should be high,if demand is low score should be low 
 
-*Output Format*: Provide the data as separate arrays in JSON format, without theoretical explanations, focusing on the scoring/ranking.
+present the output in the following way only, dont give any explanations and summary 
+{{
+"Skills/Domain": ["skill1", "skill2", "skill3", ...]
+"Candidate Experience": ["experience of skill1", "experience of skill2", "experience of skill3", ...]
+"Relevance Score": [score of skill1, score of skill2, score of skill3, ...]
+}}
+
+
     """
 
     # Configure and use Generative AI

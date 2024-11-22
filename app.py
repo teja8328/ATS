@@ -2108,6 +2108,80 @@ def generate_questions():
     return jsonify(response_data)
 
 
+
+def parse_to_skill_questions(input_string):
+    # Split the string into sections based on categories (keys)
+    sections = input_string.split("],")
+    result = []
+
+    for section in sections:
+        # Split each section into category and the list of items
+        key_value = section.split(":")
+        if len(key_value) == 2:
+            key = key_value[0].strip().strip('"').strip()
+            values = key_value[1].strip().strip("[]").strip()
+
+            # Split values by commas and clean up each item
+            values_list = [item.strip().strip('"') for item in values.split(",")]
+
+            # Create a dictionary and append to the result list
+            result.append({key: values_list})
+
+    return result
+
+
+@app.route('/generate_questions_jd', methods=['POST'])
+def generate_questions_jd():
+
+    data = request.get_json()
+    if not data or 'job_description' not in data:
+        return jsonify({'error': 'Job description is required'}), 400
+
+    job_description = data['job_description']
+    
+    
+    
+    load_dotenv()
+    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"  # Load the API key from the environment
+    genai.configure(api_key=api_key)
+
+    resume_score_prompt = f'''
+    i am giving the text of job description {job_description}
+    you need to generate 5 technical questions on each skill that are present in  job description
+    present the output in below format only dont not include any explanations dont give any examples in questions
+    {{
+    "skill1":["question1 on skill1","question2 on skill1","question3 on skill1","question4 on skill1","question5 on skill1"],
+    "skill2":["question1 on skill2","question2 on skill2","question3 on skill2","question4 on skill2","question5 on skill2"],
+    .
+    .
+    .
+    .
+       
+    }}
+    '''
+
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    response = model.generate_content(resume_score_prompt)
+    response=response.text
+    print(response)
+    final = response.replace('```python', '').replace('```', '')
+    final = final.replace('json', '')  # Remove 'json ' prefix if present
+    dic=parse_to_skill_questions(final) 
+    return jsonify({'jd_questions':dic})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ###############################################################################################
 
 # Extract text from PDF

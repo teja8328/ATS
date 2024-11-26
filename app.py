@@ -14178,37 +14178,274 @@ app.config['MAIL_USE_SSL'] = False
 # Initialize Flask-Mail
 mail = Mail(app)
 
-# This function will send the email to the recruiter
-def send_selected_candidate_notification(sender_email, input_data, recruiter_email, password,subject,body):
-    # Set up the sender email configuration dynamically
-    app.config['MAIL_USERNAME'] = sender_email
-    app.config['MAIL_DEFAULT_SENDER'] = sender_email
+# # This function will send the email to the recruiter
+# def send_selected_candidate_notification(sender_email, input_data, recruiter_email, password,subject,body):
+#     # Set up the sender email configuration dynamically
+#     app.config['MAIL_USERNAME'] = sender_email
+#     app.config['MAIL_DEFAULT_SENDER'] = sender_email
     
-    # Check email and password authentication
-    try:
-        with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
-            server.starttls()  # Secure the connection
-            server.login(sender_email, password)  # Attempt to log in with provided credentials
+#     # Check email and password authentication
+#     try:
+#         with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
+#             server.starttls()  # Secure the connection
+#             server.login(sender_email, password)  # Attempt to log in with provided credentials
             
+#     except smtplib.SMTPAuthenticationError:
+#         return f"Authentication failed for {sender_email}. Please check the email or password."
+
+#     # Now, generate the email body
+#     table_rows = ""
+#     if input_data:
+#         job_keys = input_data[0].get('jobDetails', {}).keys()
+        
+#         # Create table headers with an additional Serial No. column
+#         header_row = "<thead><tr><th>Serial No.</th>" + "".join([f"<th>{key.replace('_', ' ').title()}</th>" for key in job_keys]) + "</tr></thead>"
+#         table_rows += header_row
+
+#         # Create table rows for each candidate with a serial number
+#         for index, candidate in enumerate(input_data, start=1):
+#             job_details = candidate.get('jobDetails', {})
+#             row = f"<tbody><tr><td>{index}</td>" + "".join([f"<td>{value if value else 'N/A'}</td>" for value in job_details.values()]) + "</tr></tbody>"
+#             table_rows += row
+    
+#     # Define the HTML body content
+#     html_body = f"""
+#     <html>
+#     <head>
+#         <style>
+#             body {{
+#                 font-family: Arial, sans-serif;
+#                 color: #333;
+#                 line-height: 1.6;
+#                 background-color: #f4f4f4;
+#                 margin: 0;
+#                 padding: 0;
+#             }}
+#             .container {{
+                
+#                 position: relative;
+   
+#                 width: auto;
+#                 padding: 5px 5px;
+#                 background: rgba(255, 255, 255, 0.25);
+#                 box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+#                 backdrop-filter: blur(11.5px);
+#                 -webkit-backdrop-filter: blur(11.5px);
+#                 border: 1px solid rgba(255, 255, 255, 0.18);
+#                 overflow: auto;
+#                 display: grid;
+#                 flex: 1;
+#             }}
+#             .header {{
+#                 background-color: #4CAF50;
+#                 color: white;
+#                 padding: 10px;
+#                 text-align: center;
+#                 font-size: 20px;
+#                 border-radius: 8px 8px 0 0;
+#                 width:auto;
+                
+#             }}
+#             table {{
+#                 border-collapse: collapse;
+#                 width: 100%;
+#                 margin-top: 10px;
+#                 transform: none;
+              
+#             }}
+             
+                       
+#             th, td {{
+#                 border: 1px solid #ddd;
+#                 padding: 8px;
+#                 text-align: left;
+#                 width: auto; 
+#             }}
+#             th {{
+#                 background-color: #4CAF50;
+#                 color: white;
+#             }}
+#             tr:nth-child(even) {{
+#                 background-color: #f9f9f9;
+#             }}
+#             p {{
+#                 margin: 10px 0;
+#             }}
+#             .footer {{
+#                 margin-top: 20px;
+#                 font-size: 12px;
+#                 color: #777;
+#                 text-align: center;
+#                 border-top: 1px solid #ddd;
+#                 padding-top: 10px;
+#             }}
+#             p {{
+#                 margin:0;
+#                 margin-left:10px;
+#             }}
+#             .space{{
+#                 padding:10px;
+#                 margin-top:10px;
+#             }}
+#         </style>
+#     </head>
+#     <body>
+
+#          <div class="container">
+#             <p>{body}</p> <!-- Moved {body} here, above the table -->
+#             <table>
+#                 <caption class="header">Candidate Details</caption>
+#                 <tbody>
+#                     {table_rows}
+#                 </tbody>
+#             </table>
+#             <span class="space">Please review the candidate details on the Makonis Talent Track Pro portal for more information.</span>
+#             <p>Regards,</p>
+#             <p>Admin Team</p>
+#             <p><b>Makonis Talent Track Pro</b></p>
+#         </div>
+#     </body>
+#     </html>
+#     """
+    
+#     # Create the email message
+#     msg = Message(
+#         subject,
+#         sender=sender_email,
+#         recipients=[recruiter_email]
+#     )
+#     msg.html = html_body
+
+#     try:
+#         # Send the email using the SMTP server
+#         with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
+#             server.starttls()
+#             server.login(sender_email, password)  # Log in with provided password
+#             server.sendmail(sender_email, recruiter_email, msg.as_string())  # Send the email
+
+#         return None  # No error
+#     except Exception as e:
+#         return f"Error: {str(e)}"
+
+# # Define the API endpoint to send the email
+# @app.route('/selected_details_candidate', methods=['POST'])
+# def selected_details_candidate():
+#     # Parse incoming JSON data
+#     data = request.get_json()
+
+#     # Extract relevant fields from the request data
+#     selected_stored_data = data.get("selectedDetails", [])
+#     #print(selected_stored_data)
+#     sender_email = data.get("localStorageEmail")
+#     #print(sender_email)
+#     recruiter_email = data.get("recipientEmails")
+#     #print(recruiter_email)
+#     password = data.get("Emailpassword")  # The password for email authentication
+#     #print(password)
+#     subject = data.get("emailSubject", "")
+#     body = data.get("emailBody", "")
+
+
+#     # Call the function to send the email and capture any error
+#     error = send_selected_candidate_notification(sender_email, selected_stored_data, recruiter_email, password,subject,body)
+
+#     # Return the response based on success or failure
+#     if error:
+#         return jsonify({"status": "failure", "message": error}), 500
+#     else:
+#         return jsonify({"status": "success", "message": "Notification sent successfully"}), 200
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from email.mime.application import MIMEApplication
+
+
+@app.route('/selected_details_candidate', methods=['POST'])
+def selected_details_candidate():
+    # Parse incoming JSON data
+    data = request.get_json()
+
+    # Extract data from the request body
+    selected_details = data.get("selectedDetails", [])
+    subject = data.get("emailSubject", "")
+    body = data.get("emailBody", "")
+    recruiter_email = data.get("recipientEmails")
+
+    # Retrieve sender email and password from the app configuration
+    sender_email = app.config['MAIL_USERNAME']
+    sender_password = app.config['MAIL_PASSWORD']
+
+    # Prepare base64 resumes from the database
+    base64_resumes = []
+    for detail in selected_details:
+        candidate_id = detail.get("jobDetails", {}).get("id")
+        candidate = Candidate.query.filter_by(id=candidate_id).first()
+
+        if candidate and candidate.resume:
+            try:
+                # Convert binary resume data to Base64 format
+                resume_base64 = base64.b64encode(candidate.resume).decode('utf-8')
+                base64_resumes.append({
+                    "name": f"{candidate.name}.pdf",  # Name the file using the candidate's name
+                    "data": resume_base64
+                })
+                # Print the Base64 resume for debugging
+                print(f"Base64 Resume for {candidate.name}: {resume_base64[:100]}...")  # Print first 100 chars for brevity
+            except Exception as e:
+                return jsonify({
+                    "status": "failure",
+                    "message": f"Error processing resume for candidate ID {candidate_id}: {str(e)}"
+                }), 500
+        else:
+            return jsonify({
+                "status": "failure",
+                "message": f"Resume not found for candidate ID {candidate_id}"
+            }), 404
+
+    # Send the email with Base64 resumes
+    error = send_selected_candidate_notification(
+        selected_details=selected_details,
+        recruiter_email=recruiter_email,
+        subject=subject,
+        body=body,
+        base64_resumes=base64_resumes,
+        sender_email=sender_email,
+        sender_password=sender_password
+    )
+
+    # Return the appropriate response
+    if error:
+        return jsonify({"status": "failure", "message": error}), 500
+    return jsonify({"status": "success", "message": "Notification sent successfully"}), 200
+
+
+def send_selected_candidate_notification(selected_details, recruiter_email, subject, body, base64_resumes, sender_email, sender_password):
+    # Retrieve mail server and port from the app configuration
+    mail_server = app.config['MAIL_SERVER']
+    mail_port = app.config['MAIL_PORT']
+
+    # Authenticate the email sender
+    try:
+        with smtplib.SMTP(mail_server, mail_port) as server:
+            server.starttls()  # Secure the connection
+            server.login(sender_email, sender_password)  # Attempt to log in
     except smtplib.SMTPAuthenticationError:
         return f"Authentication failed for {sender_email}. Please check the email or password."
 
-    # Now, generate the email body
+    # Generate the email table rows
     table_rows = ""
-    if input_data:
-        job_keys = input_data[0].get('jobDetails', {}).keys()
-        
-        # Create table headers with an additional Serial No. column
+    if selected_details:
+        job_keys = selected_details[0].get('jobDetails', {}).keys()
         header_row = "<thead><tr><th>Serial No.</th>" + "".join([f"<th>{key.replace('_', ' ').title()}</th>" for key in job_keys]) + "</tr></thead>"
         table_rows += header_row
-
-        # Create table rows for each candidate with a serial number
-        for index, candidate in enumerate(input_data, start=1):
+        for index, candidate in enumerate(selected_details, start=1):
             job_details = candidate.get('jobDetails', {})
-            row = f"<tbody><tr><td>{index}</td>" + "".join([f"<td>{value if value else 'N/A'}</td>" for value in job_details.values()]) + "</tr></tbody>"
+            row = f"<tr><td>{index}</td>" + "".join([f"<td>{value if value else 'N/A'}</td>" for value in job_details.values()]) + "</tr>"
             table_rows += row
-    
-    # Define the HTML body content
+
+    # Define the updated HTML email body
     html_body = f"""
     <html>
     <head>
@@ -14222,19 +14459,12 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
                 padding: 0;
             }}
             .container {{
-                
-                position: relative;
-   
-                width: auto;
-                padding: 5px 5px;
-                background: rgba(255, 255, 255, 0.25);
-                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-                backdrop-filter: blur(11.5px);
-                -webkit-backdrop-filter: blur(11.5px);
-                border: 1px solid rgba(255, 255, 255, 0.18);
-                overflow: auto;
-                display: grid;
-                flex: 1;
+                padding: 10px;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+                max-width: 800px;
             }}
             .header {{
                 background-color: #4CAF50;
@@ -14243,25 +14473,18 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
                 text-align: center;
                 font-size: 20px;
                 border-radius: 8px 8px 0 0;
-                width:auto;
-                
             }}
             table {{
-                border-collapse: collapse;
                 width: 100%;
+                border-collapse: collapse;
                 margin-top: 10px;
-                transform: none;
-              
             }}
-             
-                       
-            th, td {{
+            th,td {{
                 border: 1px solid #ddd;
                 padding: 8px;
                 text-align: left;
-                width: auto; 
             }}
-            th {{
+            thead th {{
                 background-color: #4CAF50;
                 color: white;
             }}
@@ -14279,27 +14502,16 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
                 border-top: 1px solid #ddd;
                 padding-top: 10px;
             }}
-            p {{
-                margin:0;
-                margin-left:10px;
-            }}
-            .space{{
-                padding:10px;
-                margin-top:10px;
-            }}
         </style>
     </head>
     <body>
-
-         <div class="container">
-            <p>{body}</p> <!-- Moved {body} here, above the table -->
+        <div class="container">
+            <div class="header">Candidate Details</div>
+            <p>{body}</p>
             <table>
-                <caption class="header">Candidate Details</caption>
-                <tbody>
-                    {table_rows}
-                </tbody>
+                {table_rows}
             </table>
-            <span class="space">Please review the candidate details on the Makonis Talent Track Pro portal for more information.</span>
+            <p>Please review the candidate details on the Makonis Talent Track Pro portal for more information.</p>
             <p>Regards,</p>
             <p>Admin Team</p>
             <p><b>Makonis Talent Track Pro</b></p>
@@ -14307,53 +14519,34 @@ def send_selected_candidate_notification(sender_email, input_data, recruiter_ema
     </body>
     </html>
     """
-    
+
     # Create the email message
-    msg = Message(
-        subject,
-        sender=sender_email,
-        recipients=[recruiter_email]
-    )
-    msg.html = html_body
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = recruiter_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(html_body, 'html'))
 
+    # Attach resumes as PDF
+    for resume in base64_resumes:
+        try:
+            resume_data = base64.b64decode(resume["data"])
+            part = MIMEApplication(resume_data, Name=resume["name"])
+            part['Content-Disposition'] = f'attachment; filename="{resume["name"]}"'
+            msg.attach(part)
+        except Exception as e:
+            return f"Failed to attach resume {resume['name']}: {str(e)}"
+
+    # Send the email
     try:
-        # Send the email using the SMTP server
-        with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
+        with smtplib.SMTP(mail_server, mail_port) as server:
             server.starttls()
-            server.login(sender_email, password)  # Log in with provided password
-            server.sendmail(sender_email, recruiter_email, msg.as_string())  # Send the email
-
-        return None  # No error
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recruiter_email, msg.as_string())
+        return None  # Success
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error while sending email: {str(e)}"
 
-# Define the API endpoint to send the email
-@app.route('/selected_details_candidate', methods=['POST'])
-def selected_details_candidate():
-    # Parse incoming JSON data
-    data = request.get_json()
-
-    # Extract relevant fields from the request data
-    selected_stored_data = data.get("selectedDetails", [])
-    #print(selected_stored_data)
-    sender_email = data.get("localStorageEmail")
-    #print(sender_email)
-    recruiter_email = data.get("recipientEmails")
-    #print(recruiter_email)
-    password = data.get("Emailpassword")  # The password for email authentication
-    #print(password)
-    subject = data.get("emailSubject", "")
-    body = data.get("emailBody", "")
-
-
-    # Call the function to send the email and capture any error
-    error = send_selected_candidate_notification(sender_email, selected_stored_data, recruiter_email, password,subject,body)
-
-    # Return the response based on success or failure
-    if error:
-        return jsonify({"status": "failure", "message": error}), 500
-    else:
-        return jsonify({"status": "success", "message": "Notification sent successfully"}), 200
 
 
 

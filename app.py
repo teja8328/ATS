@@ -14369,30 +14369,37 @@ def selected_details_candidate():
 
     # Extract data from the request body
     selected_details = data.get("selectedDetails", [])
+    selected_candidates = data.get("selectedCandidate", [])
     subject = data.get("emailSubject", "")
     body = data.get("emailBody", "")
     recruiter_email = data.get("recipientEmails")
+    sender_email = data.get("localStorageEmail")  # Sender email from input JSON
+    sender_password = data.get("Emailpassword")  # Password for sender email from input JSON
 
-    # Retrieve sender email and password from the app configuration
-    sender_email = app.config['MAIL_USERNAME']
-    sender_password = app.config['MAIL_PASSWORD']
+    # Validate sender email and password
+    if not sender_email or not sender_password:
+        return jsonify({
+            "status": "failure",
+            "message": "Sender email or password is missing in the request."
+        }), 400
 
     # Prepare base64 resumes from the database
     base64_resumes = []
-    for detail in selected_details:
-        candidate_id = detail.get("jobDetails", {}).get("id")
-        candidate = Candidate.query.filter_by(id=candidate_id).first()
+    for candidate in selected_candidates:
+        candidate_id = candidate.get("id")
+        candidate_name = candidate.get("name", "").strip()  # Strip extra spaces from the name
+        candidate_record = Candidate.query.filter_by(id=candidate_id).first()
 
-        if candidate and candidate.resume:
+        if candidate_record and candidate_record.resume:
             try:
                 # Convert binary resume data to Base64 format
-                resume_base64 = base64.b64encode(candidate.resume).decode('utf-8')
+                resume_base64 = base64.b64encode(candidate_record.resume).decode('utf-8')
                 base64_resumes.append({
-                    "name": f"{candidate.name}.pdf",  # Name the file using the candidate's name
+                    "name": f"{candidate_name}.pdf",  # Use candidate's name for the file
                     "data": resume_base64
                 })
                 # Print the Base64 resume for debugging
-                print(f"Base64 Resume for {candidate.name}: {resume_base64[:100]}...")  # Print first 100 chars for brevity
+                print(f"Base64 Resume for {candidate_name}: {resume_base64[:100]}...")  # Print first 100 chars for brevity
             except Exception as e:
                 return jsonify({
                     "status": "failure",
@@ -14419,6 +14426,7 @@ def selected_details_candidate():
     if error:
         return jsonify({"status": "failure", "message": error}), 500
     return jsonify({"status": "success", "message": "Notification sent successfully"}), 200
+
 
 
 def send_selected_candidate_notification(selected_details, recruiter_email, subject, body, base64_resumes, sender_email, sender_password):
@@ -14546,6 +14554,7 @@ def send_selected_candidate_notification(selected_details, recruiter_email, subj
         return None  # Success
     except Exception as e:
         return f"Error while sending email: {str(e)}"
+
 
 
 

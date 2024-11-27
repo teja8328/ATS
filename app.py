@@ -2142,7 +2142,7 @@ def generate_questions_jd():
     
     
     load_dotenv()
-    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"  # Load the API key from the environment
+    api_key = "AIzaSyBLy-TJ3Lyo0FjJidjLyH4hmXhbPz4nJMc"  # Load the API key from the environment
     genai.configure(api_key=api_key)
 
     resume_score_prompt = f'''
@@ -12821,7 +12821,7 @@ def extract_text_from_docx(file):
     
 #     return "No name found"
 load_dotenv()
-api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"
+api_key = "AIzaSyBLy-TJ3Lyo0FjJidjLyH4hmXhbPz4nJMc"
 genai.configure(api_key=api_key)
 # def format_data_info_text(text):
 #     match = re.search(r"\{.*\}", text, re.DOTALL)
@@ -13204,7 +13204,7 @@ def parse_resume():
 def generate_resume_data(all_resumes_text):
     """Use Google Generative AI to extract structured data from resumes."""
     load_dotenv()
-    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"  # Load the API key from the environment
+    api_key = "AIzaSyBLy-TJ3Lyo0FjJidjLyH4hmXhbPz4nJMc"  # Load the API key from the environment
     genai.configure(api_key=api_key)
 
     resume_score_prompt = f'''

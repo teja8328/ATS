@@ -2354,7 +2354,7 @@ def generate_questions_jd():
     
 
     load_dotenv()
-    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"  # Load the API key from the environment
+    api_key = "AIzaSyBLy-TJ3Lyo0FjJidjLyH4hmXhbPz4nJMc"  # Load the API key from the environment
     genai.configure(api_key=api_key)
 
     resume_score_prompt = f'''

@@ -13185,6 +13185,7 @@ def parse_resume():
     resume_score_prompt = f'''
     I am giving the extracted text of a resume: {resume_text} 
     Analyse the resume and extract data with no theoretical explanations and no analysis.
+    if any of data is not present in resume in the output give not specified
     Present the output in the following format:
     data={{
     'name':['name of the candidate from resume'],

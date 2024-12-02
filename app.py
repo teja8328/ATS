@@ -2292,19 +2292,69 @@ def parse_to_skill_questions(input_string):
     return result
 
 
+# @app.route('/generate_questions_jd', methods=['POST'])
+# def generate_questions_jd():
+
+#     data = request.get_json()
+#     if not data or 'job_description' not in data:
+#         return jsonify({'error': 'Job description is required'}), 400
+
+#     job_description = data['job_description']
+    
+    
+    
+#     load_dotenv()
+#     api_key = "AIzaSyBLy-TJ3Lyo0FjJidjLyH4hmXhbPz4nJMc"  # Load the API key from the environment
+#     genai.configure(api_key=api_key)
+
+#     resume_score_prompt = f'''
+#     i am giving the text of job description {job_description}
+#     you need to generate 5 technical questions on each skill that are present in  job description
+#     present the output in below format only dont not include any explanations dont give any examples in questions
+#     {{
+#     "skill1":["question1 on skill1","question2 on skill1","question3 on skill1","question4 on skill1","question5 on skill1"],
+#     "skill2":["question1 on skill2","question2 on skill2","question3 on skill2","question4 on skill2","question5 on skill2"],
+#     .
+#     .
+#     .
+#     .
+       
+#     }}
+#     '''
+
+#     model = genai.GenerativeModel('gemini-1.5-flash')
+#     response = model.generate_content(resume_score_prompt)
+#     response=response.text
+#     print(response)
+#     final = response.replace('```python', '').replace('```', '')
+#     final = final.replace('json', '')  # Remove 'json ' prefix if present
+#     dic=parse_to_skill_questions(final) 
+#     return jsonify({'jd_questions':dic})
+
+
 @app.route('/generate_questions_jd', methods=['POST'])
 def generate_questions_jd():
-
     data = request.get_json()
-    if not data or 'job_description' not in data:
-        return jsonify({'error': 'Job description is required'}), 400
+    
+    # Extract values from the request
+    resume = data.get('job_description_base64')  # Can be None if not provided
+    texts = data.get('job_description_text')     # Can be None if not provided
 
-    job_description = data['job_description']
+    # Check if resume is provided, otherwise use the job description text
+    if resume is not None:
+        decoded_resume = base64.b64decode(resume)
+        resume_file = io.BytesIO(decoded_resume)
+        resume_text = extract_text(resume_file)
+        job_description=resume_text
+        
+    elif texts is not None:
+        job_description = texts
+    else:
+        return jsonify({"error": "No job description provided."}), 400
     
-    
-    
+
     load_dotenv()
-    api_key = "AIzaSyBLy-TJ3Lyo0FjJidjLyH4hmXhbPz4nJMc"  # Load the API key from the environment
+    api_key = "AIzaSyDypRRzb3bEOxHWcaJ3j7qtAbxdwfoNmeU"  # Load the API key from the environment
     genai.configure(api_key=api_key)
 
     resume_score_prompt = f'''
@@ -2330,7 +2380,6 @@ def generate_questions_jd():
     final = final.replace('json', '')  # Remove 'json ' prefix if present
     dic=parse_to_skill_questions(final) 
     return jsonify({'jd_questions':dic})
-
 
 
 

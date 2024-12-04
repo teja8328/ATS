@@ -2287,10 +2287,11 @@ def string_to_dict_list(input_string):
         questions = value.strip(' []"').split('","')
         questions = [q.strip('"').strip() for q in questions]
         
-        # Add to the dictionary list
+        # Create a dictionary with the desired format
         topic_dict_list.append({key: questions})
     
     return topic_dict_list
+
 
 # @app.route('/generate_questions_jd', methods=['POST'])
 # def generate_questions_jd():

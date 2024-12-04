@@ -2358,9 +2358,10 @@ def generate_questions_jd():
     resume_score_prompt = f'''
     i am giving the text of job description {job_description}
     you need to generate 5 technical questions on each skill that are present in  job description
-    present the output in below format only dont not include any explanations dont give any examples in questions
     depending on the experience generate questions,if experience is more give some hard level questions
     if experience is less give  moderate questions
+    add question mark at the end of each question
+    present the output in below format only dont not include any explanations
     {{
     "skill1":["question1 on skill1","question2 on skill1","question3 on skill1","question4 on skill1","question5 on skill1"],
     "skill2":["question1 on skill2","question2 on skill2","question3 on skill2","question4 on skill2","question5 on skill2"],

@@ -193,6 +193,7 @@ class Candidate(db.Model):
     recruiter = db.Column(db.String(100))
     management = db.Column(db.String(100))
     status = db.Column(db.String(100))
+    status_sub_category = db.Column(db.String(100))
     reason_for_job_change = db.Column(db.String(200))
     remarks = db.Column(db.String(200))
     # screening_done = db.Column(db.Boolean, default=False)
@@ -272,6 +273,7 @@ class Candidate(db.Model):
             'reference_name': self.reference_name,
             'reference_position': self.reference_position,
             'reference_information': self.reference_information,
+            'status_sub_category': self.status_sub_category
             
         }
         

@@ -2287,7 +2287,7 @@ def string_to_dict_list(input_string):
         questions = value.strip(' []"').split('","')
         questions = [q.strip('"').strip() for q in questions]
         
-        # Create a dictionary with the desired format
+        # Add to the dictionary list
         topic_dict_list.append({key: questions})
     
     return topic_dict_list

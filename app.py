@@ -14222,7 +14222,8 @@ def get_all_candidates_dashboard():
             'date_created': candidate.date_created,
             'user_id': candidate.user_id,
             'serving_notice_period': candidate.serving_notice_period,
-            'data_updated_date': candidate.data_updated_date
+            'data_updated_date': candidate.data_updated_date,
+            'status_sub_category': candidate.status_sub_category
         }
 
     # Prepare the response data without nesting under "candidates"

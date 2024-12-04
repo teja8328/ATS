@@ -2271,26 +2271,24 @@ def generate_questions():
 
 
 
-def parse_to_skill_questions(input_string):
-    # Split the string into sections based on categories (keys)
-    sections = input_string.split("],")
-    result = []
+def string_to_dict_list(input_string):
+    # Split the input string into topic blocks based on "}," and clean up.
+    topics = input_string.strip("{}").split("],")
+    topic_dict_list = []
 
-    for section in sections:
-        # Split each section into category and the list of items
-        key_value = section.split(":")
-        if len(key_value) == 2:
-            key = key_value[0].strip().strip('"').strip()
-            values = key_value[1].strip().strip("[]").strip()
-
-            # Split values by commas and clean up each item
-            values_list = [item.strip().strip('"') for item in values.split(",")]
-
-            # Create a dictionary and append to the result list
-            result.append({key: values_list})
-
-    return result
-
+    for topic in topics:
+        # Extract key and value parts
+        key, value = topic.split(":", 1)
+        key = key.strip().strip('"')
+        
+        # Extract questions from the value part using '?' as reference.
+        questions = value.strip(' []"').split('","')
+        questions = [q.strip('"').strip() for q in questions]
+        
+        # Add to the dictionary list
+        topic_dict_list.append({key: questions})
+    
+    return topic_dict_list
 
 # @app.route('/generate_questions_jd', methods=['POST'])
 # def generate_questions_jd():
@@ -2380,7 +2378,7 @@ def generate_questions_jd():
     print(response)
     final = response.replace('```python', '').replace('```', '')
     final = final.replace('json', '')  # Remove 'json ' prefix if present
-    dic=parse_to_skill_questions(final) 
+    dic=string_to_dict_list(final) 
     return jsonify({'jd_questions':dic})
 
 

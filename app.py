@@ -1134,7 +1134,7 @@ def create_event(subject, start_date, start_time, end_date, end_time, attendees,
 #     return response.json(), None
 
 # Function to update an event
-def update_event(event_id, subject, start_date, start_time, end_date, end_time, attendees, cc_recipients, recruiter_email, time_zone):
+def update_event(event_id, subject, start_date, start_time, end_date, end_time, attendees, cc_recipients, recruiter_email, time_zone, description):
     access_token = get_access_token()
 
     if not access_token:
@@ -1170,6 +1170,10 @@ def update_event(event_id, subject, start_date, start_time, end_date, end_time, 
 
     event = {
         'subject': subject,
+        'body': {
+            'contentType': 'text',  # Setting content type to text
+            'content': description  # Adding the description
+        },
         'start': {
             'dateTime': start_date_time,
             'timeZone': time_zone
@@ -1193,6 +1197,7 @@ def update_event(event_id, subject, start_date, start_time, end_date, end_time, 
         return None, f"Error updating event: {response.status_code} - {response.text}"
     
     return response.json(), None
+
 
 
 # Function to delete an event
@@ -1476,8 +1481,8 @@ def handle_create_event():
 @app.route('/update_event', methods=['POST'])
 def handle_update_event():
     data = request.json
+
     meeting_id = data.get('meeting_id')
-    
     meetings = ScheduledMeeting.query.filter_by(id=meeting_id).first()
     event_id = meetings.event_id
 
@@ -1492,9 +1497,10 @@ def handle_update_event():
     attendees = data.get('attendees')
     cc_recipients = data.get('cc_recipients', [])  # Defaults to an empty list if not provided
     recruiter_email = data.get('recruiter_email')
-    time_zone = data.get('time_zone')  # Default to UTC if not provided
+    time_zone = data.get('time_zone')
+    description = data.get('description')  # New field for description
     
-    if not all([subject, start_date, start_time, end_date, end_time, attendees, recruiter_email,meeting_id]):
+    if not all([subject, start_date, start_time, end_date, end_time, attendees, recruiter_email, meeting_id]):
         return jsonify({'error': 'Missing required fields'}), 400
     
     event_response, error = update_event(
@@ -1507,7 +1513,8 @@ def handle_update_event():
         attendees=attendees,
         cc_recipients=cc_recipients,
         recruiter_email=recruiter_email,
-        time_zone=time_zone
+        time_zone=time_zone,
+        description=description
     )
     
     if event_response:
@@ -1523,46 +1530,13 @@ def handle_update_event():
             scheduled_meeting.attendees = ','.join(attendees)
             scheduled_meeting.cc_recipients = ','.join(cc_recipients)
             scheduled_meeting.time_zone = time_zone
+            scheduled_meeting.description = description  # Save description in the database
             db.session.commit()
             return jsonify({'message': 'Event updated successfully.', 'event': event_response}), 200
         else:
             return jsonify({'error': 'Event not found'}), 404
     else:
         return jsonify({'error': error}), 500
-
-
-@app.route('/delete_event', methods=['POST'])
-def handle_delete_event():
-    data = request.json
-    
-    if not data:
-        return jsonify({'error': 'Invalid request, no JSON body provided'}), 400
-
-    meeting_id = data.get('meeting_id')
-    
-    if not meeting_id:
-        return jsonify({'error': 'Missing meeting_id field'}), 400
-
-    # Fetch the meeting details
-    meeting = ScheduledMeeting.query.filter_by(id=meeting_id).first()
-
-    if not meeting:
-        return jsonify({'error': 'Meeting not found'}), 404
-
-    event_id = meeting.event_id
-    recruiter_email = meeting.recruiter_email
-
-    # Call the delete_event function
-    success, error = delete_event(event_id, recruiter_email)
-    
-    if success:
-        # Remove the meeting record from the database
-        db.session.delete(meeting)
-        db.session.commit()
-        return jsonify({'message': 'Event deleted successfully.'}), 200
-    else:
-        return jsonify({'error': error}), 500
-
 
 @app.route('/get_all_meetings', methods=['POST'])
 def get_all_meetings():
@@ -1608,18 +1582,18 @@ def get_all_meetings():
                     'attendees': meeting.attendees,  # Already stored as a comma-separated string
                    'cc_recipients': meeting.cc_recipients,  # Already stored as a comma-separated string
                     'time_zone': meeting.time_zone,
-                    'join_url': meeting.join_url
+                    'join_url': meeting.join_url,
+                    'description':meeting.description
                 }
                 meetings_data.append(meeting_dict)
-        
+        print(meetings_data)
         if not meetings_data:
-            return jsonify({'message': 'No relevant meetings found for this recruiter'}), 404
+            return jsonify({'message': 'No relevant meetings found for this recruiter'}), 200
         
         return jsonify({'meetings': meetings_data}), 200
-    
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 # @app.route('/get_all_meetings', methods=['POST'])
 # def get_all_meetings():
